@@ -7,6 +7,7 @@ import Contact from './components/Contact'
 import Footer from './components/Footer'
 import './styles/global.css'
 import Experience from './components/Experience'
+import EducationTimeline from './components/EducationTimeline'
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
       <About />
       <Skills />
       <Experience />
+      <EducationTimeline />
       <Projects />
       <Contact />
       <Footer />
