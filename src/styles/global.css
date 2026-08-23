@@ -9,11 +9,12 @@
   --bg:          #0C0D14;
   --surface:     #13151F;
   --surface-2:   #1E2235;
-  --accent:      #6C63FF;
+  --accent:      #684BFF; /* Accessible Purple (Contrast >5:1) */
   --accent-soft: #A78BFA;
   --text:        #C8CADE;
   --text-bright: #EEEEF2;
   --border:      rgba(108, 99, 255, 0.15);
+  --border-hover:rgba(108, 99, 255, 0.35);
   --radius:      12px;
   --font-display: 'Space Grotesk', sans-serif;
   --font-body:    'Inter', sans-serif;
@@ -44,11 +45,17 @@ a {
 a:hover { color: var(--accent); }
 
 section {
-  padding: 100px 0;
+  padding: 3rem 0;
   max-width: 1100px;
   margin: 0 auto;
   padding-left: 24px;
   padding-right: 24px;
+}
+
+@media (min-width: 768px) {
+  section {
+    padding: 4rem 0;
+  }
 }
 
 .section-title {
@@ -74,4 +81,235 @@ section {
   font-size: 1rem;
   margin-bottom: 48px;
   opacity: 0.75;
+}
+
+/* Redesigned Hero Section Custom CSS */
+
+/* Caret blinking animation for Typewriter */
+@keyframes blink {
+  0%, 100% { border-color: transparent }
+  50% { border-color: var(--accent-soft) }
+}
+.animate-blink {
+  animation: blink 0.8s step-end infinite;
+}
+
+/* Rotating gradient border for profile ring */
+@keyframes rotate-ring {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+.animate-rotate-ring {
+  animation: rotate-ring 12s linear infinite;
+}
+
+/* Floating background particles animation */
+@keyframes float-particle {
+  0% {
+    transform: translate(0px, 0px);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.35;
+  }
+  90% {
+    opacity: 0.35;
+  }
+  100% {
+    transform: translate(25px, -120px);
+    opacity: 0;
+  }
+}
+.animate-float-particle {
+  animation: float-particle 15s linear forwards;
+}
+
+/* Fade-in-up transitions */
+.fade-in-up-prepare {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 1s cubic-bezier(0.16, 1, 0.3, 1), transform 1s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.fade-in-up-active {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Full-width overrides for Hero Section */
+#hero {
+  max-width: none !important;
+  width: 100% !important;
+  margin: 0 !important;
+  padding-left: 24px !important;
+  padding-right: 24px !important;
+}
+
+@media (min-width: 768px) {
+  #hero {
+    padding-left: 80px !important;
+    padding-right: 80px !important;
+  }
+}
+
+/* Redesigned About Section Custom CSS */
+
+/* Fade-in-left transition */
+.fade-in-left-prepare {
+  opacity: 0;
+  transform: translateX(-40px);
+  transition: opacity 1s cubic-bezier(0.16, 1, 0.3, 1), transform 1s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.fade-in-left-active {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Fade-in-right transition */
+.fade-in-right-prepare {
+  opacity: 0;
+  transform: translateX(40px);
+  transition: opacity 1s cubic-bezier(0.16, 1, 0.3, 1), transform 1s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.fade-in-right-active {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Visual Performance Animation Upgrades */
+
+/* Reusable Scroll Reveal Styles */
+.reveal-card {
+  opacity: 0;
+  transform: translateY(var(--reveal-y, 20px));
+  transition: opacity var(--reveal-duration, 400ms) ease-out var(--reveal-delay, 0ms),
+              transform var(--reveal-duration, 400ms) ease-out var(--reveal-delay, 0ms);
+}
+
+.reveal-card.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Page Load Animation Sequence */
+.navbar-load {
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: opacity 400ms ease-out, transform 400ms ease-out;
+}
+.navbar-load.page-loaded {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.hero-text-load {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 500ms ease-out 200ms, transform 500ms ease-out 200ms;
+}
+.hero-text-load.page-loaded {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.hero-photo-load {
+  opacity: 0;
+  transform: scale(0.92);
+  transition: opacity 500ms ease-out 300ms, transform 500ms ease-out 300ms;
+}
+.hero-photo-load.page-loaded {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Nav Link Underline Micro-Interaction */
+.nav-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -4px;
+  width: 0;
+  height: 2px;
+  background-color: var(--accent);
+  transition: width 200ms ease;
+  border-radius: 9999px;
+}
+
+.nav-link:hover::after,
+.nav-link.active::after,
+.nav-link:focus-visible::after {
+  width: 100%;
+}
+
+/* Global Custom Improvements */
+
+/* Custom Webkit Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #0C0D14;
+}
+::-webkit-scrollbar-thumb {
+  background: #684BFF;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #A78BFA;
+}
+
+/* Initial Page Load Fade-In */
+@keyframes page-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+body {
+  animation: page-fade-in 400ms ease-out forwards;
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .navbar-load,
+  .hero-text-load,
+  .hero-photo-load,
+  .reveal-card {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+}
+
+/* Accessibility: Keyboard Navigation Focus visible indicators */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+}
+
+/* Accessibility: Skip to Main Content Link */
+.skip-to-main-content {
+  position: absolute;
+  top: -100px;
+  left: 24px;
+  background: var(--accent);
+  color: white;
+  padding: 12px 24px;
+  border-radius: 8px;
+  z-index: 99999;
+  font-family: var(--font-display);
+  font-weight: bold;
+  transition: top 200ms ease;
+  text-decoration: none;
+}
+
+.skip-to-main-content:focus {
+  top: 24px;
 }

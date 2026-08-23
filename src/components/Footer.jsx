@@ -16,12 +16,12 @@ const socialLinks = [
   },
   {
     icon: <FaLinkedin size={18} />,
-    href: 'https://linkedin.com/in/yourprofile',
+    href: 'https://linkedin.com/in/rajesh-ag',
     label: 'LinkedIn',
   },
   {
     icon: <FaEnvelope size={18} />,
-    href: 'mailto:your@email.com',
+    href: 'mailto:rajesh.ag.dev@gmail.com',
     label: 'Email',
   },
 ]
@@ -62,6 +62,7 @@ const Footer = () => {
               <li key={link.to}>
                 <Link
                   to={link.to}
+                  href={`#${link.to}`}
                   smooth={true}
                   duration={500}
                   offset={-80}
@@ -109,7 +110,7 @@ const Footer = () => {
             className="text-[#C8CADE] text-xs opacity-50 text-center"
             style={{ fontFamily: 'Space Grotesk, sans-serif' }}
           >
-            © {year} Rajesh. All rights reserved.
+            © {year} Rajesh A.G. Built with React + Vite
           </p>
 
           <p
@@ -118,7 +119,7 @@ const Footer = () => {
           >
             Designed &amp; Built by{' '}
             <span className="text-[#A78BFA] opacity-100">
-              Rajesh
+              Rajesh A.G.
             </span>
           </p>
 

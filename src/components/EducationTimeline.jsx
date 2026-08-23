@@ -1,285 +1,425 @@
-const educationData = [
+import { useScrollReveal } from '../hooks/useScrollReveal'
+import { HiLocationMarker, HiAcademicCap } from 'react-icons/hi'
+import { MdOutlineSchool } from 'react-icons/md'
+
+// ─── Data ────────────────────────────────────────────────────────────────────
+
+const EDUCATION_DATA = [
   {
     id: 1,
-    period: "2019 – 2020",
-    level: "10th Standard",
-    institution: "PRG Higher Secondary School",
-    location: "Kattumannarkoil, Tamil Nadu",
-    board: "State Board",
-    score: "89.2%",
-    scoreLabel: "Percentage",
-    type: "school",
+    type: 'college',
+    period: '2022 – 2026',
+    level: 'B.Tech Information Technology (with Honours)',
+    institution: 'Adhiparasakthi Engineering College',
+    location: 'Melmaruvathur',
+    board: 'Anna University',
+    score: '8.5 CGPA',
+    scoreLabel: 'CGPA',
+    extra: 'Bachelor of Technology in Information Technology with Honours',
   },
   {
     id: 2,
-    period: "2020 – 2022",
-    level: "12th Standard",
-    institution: "PRG Higher Secondary School",
-    location: "Kattumannarkoil, Tamil Nadu",
-    board: "State Board",
-    score: "95%",
-    scoreLabel: "Percentage",
-    type: "school",
+    type: 'school',
+    period: '2021 – 2022',
+    level: 'Higher Secondary (12th Standard)',
+    institution: 'PRG Higher Secondary School',
+    location: 'Kattumannarkoil',
+    board: 'State Board',
+    score: '85%',
+    scoreLabel: 'Academic Score',
+    extra: 'Higher Secondary education under the Tamil Nadu State Board',
   },
   {
     id: 3,
-    period: "2022 – 2026",
-    level: "B.Tech — Information Technology",
-    institution: "Adhiparasakthi Engineering College",
-    location: "Melmaruvathur, Tamil Nadu",
-    board: "Anna University",
-    score: "8.5",
-    scoreLabel: "CGPA",
-    extra: "With Honours",
-    type: "college",
+    type: 'school',
+    period: '2019 – 2020',
+    level: 'Secondary School (10th Standard)',
+    institution: 'PRG Higher Secondary School',
+    location: 'Kattumannarkoil',
+    board: 'State Board',
+    score: '89.2%',
+    scoreLabel: 'Academic Score',
+    extra: 'Secondary education under the Tamil Nadu State Board',
   },
-];
+]
 
-const colors = {
-  school: {
-    dot: "#1D9E75",
-    dotBg: "#E1F5EE",
-    bar: "linear-gradient(90deg, #1D9E75, #5DCAA5)",
-    yearColor: "#0F6E56",
-    badgeBg: "#E1F5EE",
-    badgeText: "#085041",
-  },
-  college: {
-    dot: "#534AB7",
-    dotBg: "#EEEDFE",
-    bar: "linear-gradient(90deg, #534AB7, #7F77DD)",
-    yearColor: "#3C3489",
-    badgeBg: "#EEEDFE",
-    badgeText: "#3C3489",
-  },
-};
+// ─── Design tokens (matches portfolio dark theme) ─────────────────────────────
 
-function Badge({ children, variant = "default", color }) {
-  const styles = {
-    display: "inline-flex",
-    alignItems: "center",
-    fontSize: "12px",
-    fontWeight: 500,
-    padding: "3px 10px",
-    borderRadius: "20px",
-    background:
-      variant === "colored" && color ? color.badgeBg : "#f1f1ef",
-    color:
-      variant === "colored" && color ? color.badgeText : "#5F5E5A",
-    border: variant === "default" ? "0.5px solid #d3d1c7" : "none",
-  };
-  return <span style={styles}>{children}</span>;
+const TOKEN = {
+  // Backgrounds
+  bgSection:  'var(--bg)',
+  bgCard:     'var(--surface)',
+
+  // Text
+  textPrimary: 'var(--text-bright)',
+  textMuted:   'var(--text)',
+  textFaint:   'rgba(200, 202, 222, 0.55)',
+
+  // Borders
+  borderDefault: 'var(--border)',
+  borderHover:   'var(--border-hover)',
+
+  // School accent — teal
+  schoolDot:      '#1D9E75',
+  schoolBar:      'linear-gradient(90deg, #1D9E75, #5DCAA5)',
+  schoolPill:     'rgba(29, 158, 117, 0.1)',
+  schoolPillText: '#5DCAA5',
+  schoolPillBorder: 'rgba(29, 158, 117, 0.25)',
+  schoolLabel:    '#5DCAA5',
+
+  // College accent — purple
+  collegeDot:      'var(--accent)',
+  collegeBar:      'linear-gradient(90deg, var(--accent), var(--accent-soft))',
+  collegePill:     'rgba(104, 75, 255, 0.1)',
+  collegePillText: 'var(--accent-soft)',
+  collegePillBorder: 'rgba(104, 75, 255, 0.25)',
+  collegeLabel:    'var(--accent-soft)',
+
+  // Honours
+  honoursPill:      'rgba(234, 179, 8, 0.1)',
+  honoursPillText:  '#FBBF24',
+  honoursPillBorder:'rgba(234, 179, 8, 0.25)',
+
+  font: "var(--font-display)",
 }
 
-function TimelineCard({ item, isLast }) {
-  const c = colors[item.type];
+// ─── Helpers ──────────────────────────────────────────────────────────────────
 
-  return (
-    <div style={{ position: "relative", marginBottom: isLast ? 0 : "2rem" }}>
-      {/* Dot */}
-      <div
-        style={{
-          position: "absolute",
-          left: "-21px",
-          top: "8px",
-          width: "14px",
-          height: "14px",
-          borderRadius: "50%",
-          border: `2px solid ${c.dot}`,
-          background: "#fff",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          zIndex: 1,
-        }}
-      >
-        <div
-          style={{
-            width: "5px",
-            height: "5px",
-            borderRadius: "50%",
-            background: c.dot,
-          }}
-        />
-      </div>
+const isSchool = (type) => type === 'school'
 
-      {/* Card */}
-      <div
-        style={{
-          background: "#fff",
-          border: "0.5px solid #d3d1c7",
-          borderRadius: "12px",
-          padding: "1rem 1.25rem",
-          transition: "border-color 0.2s",
-        }}
-        onMouseEnter={(e) =>
-          (e.currentTarget.style.borderColor = "#888780")
-        }
-        onMouseLeave={(e) =>
-          (e.currentTarget.style.borderColor = "#d3d1c7")
-        }
-      >
-        {/* Color bar */}
-        <div
-          style={{
-            height: "3px",
-            borderRadius: "2px",
-            background: c.bar,
-            marginBottom: "12px",
-          }}
-        />
+const getDotColor   = (type) => isSchool(type) ? TOKEN.schoolDot   : TOKEN.collegeDot
+const getBarColor   = (type) => isSchool(type) ? TOKEN.schoolBar   : TOKEN.collegeBar
+const getLabelColor = (type) => isSchool(type) ? TOKEN.schoolLabel : TOKEN.collegeLabel
 
-        {/* Year + Level */}
-        <p
-          style={{
-            fontSize: "11px",
-            fontWeight: 500,
-            letterSpacing: "0.06em",
-            color: c.yearColor,
-            margin: "0 0 6px",
-          }}
-        >
-          {item.period} &nbsp;·&nbsp; {item.level}
-        </p>
+const getScorePillStyle = (type) => {
+  const isS = isSchool(type)
+  return {
+    background:   isS ? TOKEN.schoolPill   : TOKEN.collegePill,
+    color:        isS ? TOKEN.schoolPillText: TOKEN.collegePillText,
+    border: `1px solid ${isS ? TOKEN.schoolPillBorder : TOKEN.collegePillBorder}`,
+    borderRadius: '9999px',
+    fontFamily:   TOKEN.font,
+    letterSpacing: '0.02em',
+    whiteSpace:   'nowrap',
+  }
+}
 
-        {/* Institution */}
-        <p
-          style={{
-            fontSize: "15px",
-            fontWeight: 500,
-            color: "#2C2C2A",
-            margin: "0 0 2px",
-          }}
-        >
-          {item.institution}
-        </p>
-
-        {/* Location · Board */}
-        <p
-          style={{
-            fontSize: "13px",
-            color: "#5F5E5A",
-            margin: "0 0 12px",
-          }}
-        >
-          {item.location} &nbsp;·&nbsp; {item.board}
-        </p>
-
-        {/* Badges */}
-        <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
-          <Badge variant="colored" color={c}>
-            {item.scoreLabel}: {item.score}
-          </Badge>
-          {item.extra && (
-            <Badge variant="colored" color={colors.school}>
-              {item.extra}
-            </Badge>
-          )}
-          <Badge variant="default">{item.board}</Badge>
-        </div>
-      </div>
+const TimelineDot = ({ type }) => (
+  <div style={dotWrapper} aria-hidden="true">
+    <div style={{ ...dotOuter, borderColor: getDotColor(type), background: TOKEN.bgCard }}>
+      <div style={{ ...dotInner, background: getDotColor(type) }} />
     </div>
-  );
+  </div>
+)
+
+const dotWrapper = {
+  position:   'absolute',
+  left:       '-22px',
+  top:        '1.1rem',
+  zIndex:     1,
 }
 
-function SectionDivider({ label }) {
-  return (
-    <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        gap: "8px",
-        margin: "0.5rem 0 2rem",
-      }}
-    >
-      <span
-        style={{
-          fontSize: "11px",
-          color: "#888780",
-          whiteSpace: "nowrap",
-          fontWeight: 500,
-          letterSpacing: "0.06em",
-          textTransform: "uppercase",
-        }}
-      >
-        {label}
-      </span>
-      <div
-        style={{ flex: 1, height: "0.5px", background: "#d3d1c7" }}
-      />
-    </div>
-  );
+const dotOuter = {
+  width:        '14px',
+  height:       '14px',
+  borderRadius: '50%',
+  border:       '2px solid',
+  display:      'flex',
+  alignItems:   'center',
+  justifyContent: 'center',
 }
 
-export default function EducationTimeline() {
-  const schoolItems = educationData.filter((d) => d.type === "school");
-  const collegeItems = educationData.filter((d) => d.type === "college");
+const dotInner = {
+  width:        '5px',
+  height:       '5px',
+  borderRadius: '50%',
+}
+
+const CardAccentBar = ({ type }) => (
+  <div style={{ height: '3px', borderRadius: '2px', background: getBarColor(type), marginBottom: '14px' }} />
+)
+
+const TimelineCard = ({ item, index }) => {
+  const scorePillStyle = getScorePillStyle(item.type)
+  const revealRef = useScrollReveal(index * 60)
 
   return (
-    <div
-      style={{
-        maxWidth: "600px",
-        margin: "0 auto",
-        padding: "2rem 1rem",
-        fontFamily:
-          "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-      }}
-    >
-      {/* Header */}
-      <p
-        style={{
-          fontSize: "11px",
-          fontWeight: 500,
-          letterSpacing: "0.08em",
-          textTransform: "uppercase",
-          color: "#888780",
-          marginBottom: "1.5rem",
-        }}
-      >
-        Education
+    <article ref={revealRef} style={cardStyle} className="edu-card">
+      <CardAccentBar type={item.type} />
+
+      {/* Period · Level */}
+      <p style={{ ...metaLine, color: getLabelColor(item.type) }}>
+        <time dateTime={item.period}>{item.period}</time>
+        <span aria-hidden="true">&nbsp;·&nbsp;</span>
+        <span>{item.level}</span>
       </p>
 
-      {/* Timeline */}
-      <div
-        style={{
-          position: "relative",
-          paddingLeft: "28px",
-        }}
-      >
-        {/* Vertical line */}
-        <div
-          style={{
-            position: "absolute",
-            left: "7px",
-            top: "8px",
-            bottom: "8px",
-            width: "1.5px",
-            background: "#d3d1c7",
-            borderRadius: "2px",
-          }}
-        />
+      {/* Institution */}
+      <h3 style={institutionStyle}>{item.institution}</h3>
 
-        {/* School cards */}
-        {schoolItems.map((item, i) => (
-          <TimelineCard
-            key={item.id}
-            item={item}
-            isLast={false}
-          />
-        ))}
+      {/* Location · Board */}
+      <p style={locationStyle}>
+        <HiLocationMarker size={12} aria-hidden="true" style={{ display: 'inline', marginRight: '4px', verticalAlign: '-1px' }} />
+        {item.location}
+        <span aria-hidden="true">&nbsp;·&nbsp;</span>
+        {item.board}
+      </p>
 
-        {/* Divider */}
-        <SectionDivider label="Higher Education" />
+      {/* Pills */}
+      <div style={pillRow} role="list">
+        <Pill style={scorePillStyle} role="listitem">
+          {item.scoreLabel}: {item.score}
+        </Pill>
 
-        {/* College cards */}
-        {collegeItems.map((item, i) => (
-          <TimelineCard
-            key={item.id}
-            item={item}
-            isLast={i === collegeItems.length - 1}
-          />
-        ))}
+        {item.type === 'college' && (
+          <Pill style={honoursStyle} role="listitem">
+            First Class with Distinction
+          </Pill>
+        )}
       </div>
-    </div>
-  );
+
+      {/* Extra info */}
+      <p style={extraStyle}>{item.extra}</p>
+    </article>
+  )
 }
+
+const Pill = ({ children, style, ...props }) => (
+  <span style={{ ...pillBase, ...style }} {...props}>
+    {children}
+  </span>
+)
+
+const SectionHeader = () => (
+  <div style={headerStyle}>
+    <p style={eyebrowStyle}>Education History</p>
+    <h2 id="education-heading" style={headingStyle}>Education</h2>
+    <div style={accentBar} />
+  </div>
+)
+
+// ─── Inline Styles ────────────────────────────────────────────────────────────
+
+const cardStyle = {
+  background:   TOKEN.bgCard,
+  border:       `1px solid ${TOKEN.borderDefault}`,
+  borderRadius: '1rem',
+  padding:      '1.5rem',
+  display:      'flex',
+  flexDirection:'column',
+}
+
+const metaLine = {
+  fontSize:      '11px',
+  fontWeight:    600,
+  textTransform: 'uppercase',
+  letterSpacing: '0.08em',
+  margin:        0,
+  fontFamily:    TOKEN.font,
+}
+
+const institutionStyle = {
+  fontSize:   '16px',
+  fontWeight: 700,
+  color:      TOKEN.textPrimary,
+  margin:     '8px 0',
+  fontFamily: TOKEN.font,
+}
+
+const locationStyle = {
+  fontSize:   '13px',
+  color:      TOKEN.textMuted,
+  opacity:    0.7,
+  margin:     0,
+  fontFamily: TOKEN.font,
+}
+
+const pillRow = {
+  display:  'flex',
+  flexWrap: 'wrap',
+  gap:      '8px',
+  margin:   '16px 0',
+}
+
+const pillBase = {
+  fontSize:     '11px',
+  fontWeight:   600,
+  padding:      '3px 10px',
+  borderRadius: '9999px',
+  fontFamily:   TOKEN.font,
+}
+
+const honoursStyle = {
+  background:   TOKEN.honoursPill,
+  color:        TOKEN.honoursPillText,
+  border:       `1px solid ${TOKEN.honoursPillBorder}`,
+  whiteSpace:   'nowrap',
+}
+
+const extraStyle = {
+  fontSize:   '13px',
+  lineHeight: 1.6,
+  color:      TOKEN.textMuted,
+  margin:     0,
+  fontFamily: TOKEN.font,
+}
+
+const headerStyle = {
+  display:      'flex',
+  flexDirection:'column',
+  alignItems:   'center',
+  textAlign:    'center',
+  marginBottom: '2.5rem',
+}
+
+const eyebrowStyle = {
+  fontFamily:   TOKEN.font,
+  fontSize:     '11px',
+  fontWeight:   600,
+  letterSpacing:'0.25em',
+  textTransform:'uppercase',
+  color:         'var(--accent)',
+  margin:        '0 0 12px 0',
+}
+
+const headingStyle = {
+  fontFamily:   TOKEN.font,
+  fontSize:     '32px',
+  fontWeight:   700,
+  color:        TOKEN.textPrimary,
+  margin:        '0 0 16px 0',
+}
+
+const accentBar = {
+  width:        '48px',
+  height:       '3px',
+  borderRadius: '2px',
+  background:   'var(--accent)',
+}
+
+// ─── Main Component ───────────────────────────────────────────────────────────
+
+const Education = () => {
+  const schoolItems  = EDUCATION_DATA.filter((d) => d.type === 'school')
+  const collegeItems = EDUCATION_DATA.filter((d) => d.type === 'college')
+
+  return (
+    <>
+      <style>{css}</style>
+
+      <section
+        id="education"
+        className="education-section"
+        style={{ background: TOKEN.bgSection }}
+        aria-labelledby="education-heading"
+      >
+        <div style={{ maxWidth: '860px', margin: '0 auto' }}>
+          <SectionHeader />
+
+          {/* Two-column layout on desktop */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-10">
+
+            {/* Left: School */}
+            <div>
+              <p style={columnLabel}>
+                <MdOutlineSchool size={14} aria-hidden="true" style={{ display: 'inline', marginRight: '6px', verticalAlign: '-2px' }} />
+                School
+              </p>
+              <div style={timelineWrapper} role="list" aria-label="School education">
+                <div style={timelineLine} aria-hidden="true" />
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                  {schoolItems.map((item, idx) => (
+                    <div key={item.id} style={{ position: 'relative' }} role="listitem">
+                      <TimelineDot type={item.type} />
+                      <TimelineCard item={item} index={idx} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Right: Higher Education */}
+            <div>
+              <p style={columnLabel}>
+                <HiAcademicCap size={14} aria-hidden="true" style={{ display: 'inline', marginRight: '6px', verticalAlign: '-2px' }} />
+                Higher Education
+              </p>
+              <div style={timelineWrapper} role="list" aria-label="Higher education">
+                <div style={{ ...timelineLine, background: 'rgba(108, 99, 255, 0.2)' }} aria-hidden="true" />
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                  {collegeItems.map((item, idx) => (
+                    <div key={item.id} style={{ position: 'relative' }} role="listitem">
+                      <TimelineDot type={item.type} />
+                      <TimelineCard item={item} index={idx} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+    </>
+  )
+}
+
+
+
+const columnLabel = {
+  fontSize:      '11px',
+  fontWeight:    600,
+  letterSpacing: '0.1em',
+  textTransform: 'uppercase',
+  color:         TOKEN.textFaint,
+  fontFamily:    TOKEN.font,
+  marginBottom:  '1.25rem',
+}
+
+const timelineWrapper = {
+  position:    'relative',
+  paddingLeft: '28px',
+}
+
+const timelineLine = {
+  position:    'absolute',
+  left:        '7px',
+  top:         '1.1rem',
+  bottom:      '1.1rem',
+  width:       '1.5px',
+  background:  'rgba(29, 158, 117, 0.25)',
+  borderRadius:'2px',
+}
+
+// ─── CSS (hover + responsive) ─────────────────────────────────────────────────
+
+const css = `
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+  .edu-card {
+    transition: transform 200ms ease-out, border-color 200ms ease-out, box-shadow 200ms ease-out;
+  }
+
+  .edu-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(108, 99, 255, 0.35) !important;
+    box-shadow: 0 0 0 1px rgba(108, 99, 255, 0.06),
+                0 8px 24px rgba(108, 99, 255, 0.06);
+  }
+
+  .education-section {
+    padding: 3rem 1.5rem;
+  }
+
+  @media (min-width: 768px) {
+    .education-section {
+      padding: 4rem 1.5rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .edu-card { transition: none !important; }
+  }
+`
+
+export default Education
