@@ -4,339 +4,142 @@ import { FaGithub, FaLinkedin } from 'react-icons/fa'
 import { HiArrowDown } from 'react-icons/hi'
 import profileImg from '../assets/profile.webp'
 
-const FloatingParticle = ({ size, left, top, delay, duration }) => {
-  const [key, setKey] = useState(0)
-  const [isAnimating, setIsAnimating] = useState(false)
-
-  const handleStart = () => {
-    setIsAnimating(true)
-  }
-
-  const handleEnd = () => {
-    setIsAnimating(false)
-    setKey((prev) => prev + 1)
-  }
-
-  return (
-    <span
-      key={key}
-      onAnimationStart={handleStart}
-      onAnimationEnd={handleEnd}
-      className="absolute rounded-full bg-[#A78BFA] pointer-events-none animate-float-particle"
-      style={{
-        width: `${size}px`,
-        height: `${size}px`,
-        left,
-        top,
-        animationDelay: delay,
-        animationDuration: duration,
-        willChange: isAnimating ? 'transform' : 'auto',
-      }}
-    />
-  )
-}
-
-const roles = ["Flutter Developer", "UI/UX Designer", "Technical Mentor"]
-
-// Float particles configuration (max 25, optimized count of 20)
-const particles = [
-  { size: 5, left: '8%', top: '20%', delay: '0s', duration: '14s' },
-  { size: 7, left: '22%', top: '55%', delay: '2s', duration: '18s' },
-  { size: 4, left: '42%', top: '15%', delay: '1s', duration: '13s' },
-  { size: 6, left: '58%', top: '78%', delay: '4s', duration: '20s' },
-  { size: 5, left: '82%', top: '22%', delay: '1.5s', duration: '15s' },
-  { size: 8, left: '90%', top: '70%', delay: '3.5s', duration: '17s' },
-  { size: 4, left: '15%', top: '85%', delay: '6s', duration: '21s' },
-  { size: 7, left: '48%', top: '48%', delay: '8s', duration: '24s' },
-  { size: 5, left: '72%', top: '42%', delay: '10s', duration: '16s' },
-  { size: 6, left: '30%', top: '85%', delay: '5s', duration: '14s' },
-  { size: 5, left: '5%', top: '45%', delay: '3s', duration: '16s' },
-  { size: 7, left: '12%', top: '65%', delay: '7s', duration: '19s' },
-  { size: 4, left: '35%', top: '30%', delay: '9s', duration: '15s' },
-  { size: 6, left: '65%', top: '10%', delay: '11s', duration: '22s' },
-  { size: 5, left: '88%', top: '35%', delay: '13s', duration: '17s' },
-  { size: 8, left: '50%', top: '85%', delay: '12s', duration: '25s' },
-  { size: 4, left: '78%', top: '60%', delay: '14s', duration: '18s' },
-  { size: 6, left: '25%', top: '12%', delay: '15s', duration: '20s' },
-  { size: 5, left: '93%', top: '10%', delay: '16s', duration: '16s' },
-  { size: 7, left: '40%', top: '90%', delay: '17s', duration: '23s' },
-]
-
 const Hero = () => {
-  // Typewriter effect state
-  const [roleIndex, setRoleIndex] = useState(0)
-  const [currentText, setCurrentText] = useState("")
-  const [isDeleting, setIsDeleting] = useState(false)
-  const [typingSpeed, setTypingSpeed] = useState(100)
+  const [isLoaded, setIsLoaded] = useState(() =>
+    typeof window !== 'undefined' &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  )
 
-  // Page load sequence state
-  const [isLoaded, setIsLoaded] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    }
-    return false
-  })
-
-  // Page load trigger
   useEffect(() => {
-    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    if (prefersReducedMotion) return
-
-    const raf = requestAnimationFrame(() => {
-      setIsLoaded(true)
-    })
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    const raf = requestAnimationFrame(() => setIsLoaded(true))
     return () => cancelAnimationFrame(raf)
   }, [])
 
-  // Typewriter effect logic
-  useEffect(() => {
-    let timer
-    const handleTyping = () => {
-      const fullText = roles[roleIndex]
-      if (!isDeleting) {
-        // Typing letters
-        setCurrentText(fullText.substring(0, currentText.length + 1))
-        setTypingSpeed(80) // Fast typing
-
-        if (currentText === fullText) {
-          // Pause at full word
-          setTypingSpeed(1800)
-          setIsDeleting(true)
-        }
-      } else {
-        // Deleting letters
-        setCurrentText(fullText.substring(0, currentText.length - 1))
-        setTypingSpeed(45) // Fast deletion
-
-        if (currentText === "") {
-          setIsDeleting(false)
-          setRoleIndex((prev) => (prev + 1) % roles.length)
-          setTypingSpeed(400) // Pause before starting next word
-        }
-      }
-    }
-
-    timer = setTimeout(handleTyping, typingSpeed)
-    return () => clearTimeout(timer)
-  }, [currentText, isDeleting, roleIndex, typingSpeed])
-
-  // Media query & reduced motion state for particles rendering
-  const [shouldRenderParticles, setShouldRenderParticles] = useState(false)
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return
-
-    const checkRenderStatus = () => {
-      const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-      const isDesktop = window.innerWidth > 768
-      setShouldRenderParticles(!prefersReducedMotion && isDesktop)
-    }
-
-    // Initial check
-    checkRenderStatus()
-
-    window.addEventListener('resize', checkRenderStatus)
-    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
-    mediaQuery.addEventListener('change', checkRenderStatus)
-
-    return () => {
-      window.removeEventListener('resize', checkRenderStatus)
-      mediaQuery.removeEventListener('change', checkRenderStatus)
-    }
-  }, [])
-
   return (
-    <section
-      id="hero"
-      className="min-h-screen flex items-center justify-center relative overflow-hidden pt-20 pb-8 md:pt-28 md:pb-12 bg-[#0C0D14]"
-    >
-      {/* Subtle particle background animation */}
-      {shouldRenderParticles && (
-        <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
-          {particles.map((p, idx) => (
-            <FloatingParticle
-              key={idx}
-              size={p.size}
-              left={p.left}
-              top={p.top}
-              delay={p.delay}
-              duration={p.duration}
-            />
-          ))}
-        </div>
-      )}
+    <section id="hero" className="section relative overflow-hidden pt-[calc(var(--nav-height)+2rem)] pb-12 flex items-center min-h-[100vh]">
+      {/* Premium background grid & glow detail (extremely low contrast) */}
+      <div className="absolute inset-0 -z-10 bg-[linear-gradient(to_right,rgba(255,255,255,0.01)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.01)_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]" />
+      <div className="absolute top-[-10%] left-[50%] -translate-x-1/2 w-[600px] h-[300px] rounded-full bg-indigo-500/5 blur-[120px] -z-10 pointer-events-none" />
 
-      {/* Decorative gradient glow blobs */}
-      <div
-        className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full pointer-events-none z-0"
-        style={{
-          background: 'radial-gradient(circle, rgba(108,99,255,0.1) 0%, transparent 70%)',
-          filter: 'blur(60px)',
-        }}
-      />
-      <div
-        className="absolute bottom-1/4 right-1/4 w-80 h-80 rounded-full pointer-events-none z-0"
-        style={{
-          background: 'radial-gradient(circle, rgba(59,130,246,0.08) 0%, transparent 70%)',
-          filter: 'blur(60px)',
-        }}
-      />
-
-      {/* Main 2-column content grid */}
-      <div className="w-full max-w-[1100px] mx-auto px-6 md:px-8 relative z-10 grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16 items-center">
-        
-        {/* Left Column: Text & CTAs */}
-        <div
-          className={`flex flex-col items-center md:items-start text-center md:text-left hero-text-load ${
-            isLoaded ? 'page-loaded' : ''
-          } order-2 md:order-1`}
-        >
-          {/* Opportunities Badge */}
-          <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-[#10B981]/10 border border-[#10B981]/25 mb-6 hover:bg-[#10B981]/15 transition-all duration-300">
-            <span className="w-2 h-2 rounded-full bg-[#10B981] animate-pulse" />
-            <span className="text-xs font-semibold text-[#10B981] tracking-wide uppercase">
-              Available for Opportunities
-            </span>
-          </div>
-
-          {/* Greeting */}
-          <p className="text-[14px] text-[#C8CADE]/60 font-semibold tracking-widest uppercase mb-3">
-            👋 Hello, I&apos;m
-          </p>
-
-          {/* Name */}
-          <h1
-            className="text-4xl sm:text-5xl lg:text-[64px] font-bold text-[#EEEEF2] leading-none mb-4"
-            style={{ fontFamily: 'Space Grotesk, sans-serif' }}
-          >
-            Rajesh A
-          </h1>
-
-          {/* Typewriter role title */}
-          <div
-            className="text-2xl sm:text-3xl font-bold mb-5 min-h-[44px] flex items-center"
-            style={{
-              fontFamily: 'Space Grotesk, sans-serif',
-              background: 'linear-gradient(90deg, #A78BFA, #3B82F6)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-            }}
-          >
-            <span>{currentText}</span>
-            <span className="inline-block w-[3px] h-[1.1em] bg-[#A78BFA] ml-1.5 animate-blink" style={{ WebkitTextFillColor: '#A78BFA' }} />
-          </div>
-
-          {/* Description */}
-          <p className="text-[#C8CADE]/85 text-base md:text-lg leading-relaxed max-w-lg mb-8">
-            I craft high-performance, cross-platform mobile applications and intuitive digital experiences. Specializing in Flutter development, user-centric UI/UX design, and mentoring technical teams.
-          </p>
-
-          <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto mb-8">
-            <Link
-              to="projects"
-              href="#projects"
-              smooth={true}
-              duration={500}
-              offset={-80}
-              className="w-full sm:w-auto px-8 py-4 rounded-xl text-sm font-bold text-white cursor-pointer transition-all duration-300 hover:scale-[1.03] hover:shadow-lg hover:shadow-[#684BFF]/30 text-center bg-[#684BFF]"
-            >
-              View My Apps
-            </Link>
-            <Link
-              to="contact"
-              href="#contact"
-              smooth={true}
-              duration={500}
-              offset={-80}
-              className="w-full sm:w-auto px-8 py-4 rounded-xl text-sm font-bold text-[#EEEEF2] bg-transparent border border-[#684BFF]/55 cursor-pointer transition-all duration-300 hover:bg-[#684BFF]/10 hover:border-[#684BFF] text-center"
-            >
-              Get in Touch
-            </Link>
-          </div>
-
-          {/* Social Icons Row */}
-          <div className="flex items-center gap-4">
-            <span className="text-xs text-[#C8CADE]/40 uppercase tracking-widest font-semibold">
-              Follow:
-            </span>
-            <a
-              href="https://github.com/Rajesh-AG"
-              target="_blank"
-              rel="noreferrer"
-              aria-label="GitHub"
-              className="text-[#C8CADE] hover:text-[#684BFF] transition-all duration-300 p-2.5 rounded-xl bg-[#13151F] border border-white/5 hover:border-[#684BFF]/30 hover:scale-105"
-            >
-              <FaGithub size={20} />
-            </a>
-            <a
-              href="https://linkedin.com/in/rajesh-ag"
-              target="_blank"
-              rel="noreferrer"
-              aria-label="LinkedIn"
-              className="text-[#C8CADE] hover:text-[#684BFF] transition-all duration-300 p-2.5 rounded-xl bg-[#13151F] border border-white/5 hover:border-[#684BFF]/30 hover:scale-105"
-            >
-              <FaLinkedin size={20} />
-            </a>
-          </div>
-        </div>
-
-        {/* Right Column: Profile image with animated gradient ring */}
-        <div
-          className={`flex items-center justify-center hero-photo-load ${
-            isLoaded ? 'page-loaded' : ''
-          } order-1 md:order-2`}
-        >
-          <div className="relative w-48 h-48 sm:w-72 sm:h-72 md:w-80 md:h-80 lg:w-96 lg:h-96 flex items-center justify-center flex-shrink-0">
-            {/* Soft back glow blob */}
-            <div
-              className="absolute inset-0 rounded-full pointer-events-none opacity-45 blur-3xl"
-              style={{
-                background: 'radial-gradient(circle, #684BFF 0%, #3B82F6 70%)',
-              }}
-            />
-
-            {/* Rotating gradient ring */}
-            <div className="absolute inset-0 rounded-full p-[4px] overflow-hidden">
-              <div
-                className="w-full h-full rounded-full animate-rotate-ring"
-                style={{
-                  background: 'conic-gradient(from 0deg, #684BFF, #3B82F6, #A78BFA, #684BFF)',
-                }}
-              />
+      <div className="section-inner px-6 w-full">
+        <div className="grid grid-cols-1 lg:grid-cols-[1.15fr_0.85fr] gap-12 lg:gap-16 items-center">
+          
+          <div className={`flex flex-col items-center lg:items-start text-center lg:text-left hero-load ${isLoaded ? 'page-loaded' : ''}`}>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 mb-6">
+              <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse" />
+              <span className="text-[10px] font-bold text-indigo-300 uppercase tracking-widest">
+                Open to opportunities
+              </span>
             </div>
 
-            {/* Profile Image */}
-            <div className="absolute inset-[4px] rounded-full overflow-hidden bg-[#0C0D14] flex items-center justify-center">
-              <img
-                src={profileImg}
-                alt="Rajesh A.G. | Flutter Developer &amp; UI/UX Designer"
-                className="w-full h-full object-cover object-top hover:scale-[1.04] transition-transform duration-500"
-                loading="eager"
-                width="384"
-                height="384"
-              />
+            <p className="text-xs text-[var(--text-muted)] font-semibold uppercase tracking-wider mb-2">
+              Hello, I&apos;m
+            </p>
+
+            <h1 className="text-5xl sm:text-6xl lg:text-[4rem] font-bold text-[var(--text-bright)] leading-[1.05] tracking-tight mb-4 font-display">
+              Rajesh A.G.
+            </h1>
+
+            <p className="text-lg sm:text-2xl font-medium text-[var(--accent-soft)] tracking-wide mb-6">
+              Flutter Developer &amp; UI/UX Designer
+            </p>
+
+            <p className="text-[var(--text)] text-sm sm:text-base leading-relaxed max-w-xl mb-8 text-pretty">
+              I build production-ready cross-platform mobile apps with Firebase, REST APIs, and clean architecture.
+              Currently mentoring engineers while shipping real-world mobile products.
+            </p>
+
+            <div className="flex flex-col sm:flex-row gap-3.5 w-full sm:w-auto mb-8">
+              <Link
+                to="projects"
+                href="#projects"
+                smooth
+                duration={500}
+                offset={-72}
+                className="btn btn-primary w-full sm:w-auto cursor-pointer hover:scale-[1.02] active:scale-[0.98] transition-all shadow-md shadow-indigo-500/10"
+              >
+                View Projects
+              </Link>
+              <Link
+                to="contact"
+                href="#contact"
+                smooth
+                duration={500}
+                offset={-72}
+                className="btn btn-secondary w-full sm:w-auto cursor-pointer hover:scale-[1.02] active:scale-[0.98] transition-all"
+              >
+                Contact Me
+              </Link>
+              <a
+                href="/resume.pdf"
+                target="_blank"
+                rel="noreferrer"
+                className="btn btn-ghost w-full sm:w-auto hover:scale-[1.02] active:scale-[0.98] transition-all"
+              >
+                Resume
+              </a>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <a
+                href="https://github.com/Rajesh-AG"
+                target="_blank"
+                rel="noreferrer"
+                aria-label="GitHub profile"
+                className="flex items-center justify-center w-9 h-9 rounded-[var(--radius-sm)] border border-[var(--border)] text-[var(--text-muted)] hover:text-[var(--text-bright)] hover:border-indigo-500/30 hover:bg-white/[0.02] transition-all duration-200"
+              >
+                <FaGithub size={16} />
+              </a>
+              <a
+                href="https://linkedin.com/in/rajesh-ag"
+                target="_blank"
+                rel="noreferrer"
+                aria-label="LinkedIn profile"
+                className="flex items-center justify-center w-9 h-9 rounded-[var(--radius-sm)] border border-[var(--border)] text-[var(--text-muted)] hover:text-[var(--text-bright)] hover:border-indigo-500/30 hover:bg-white/[0.02] transition-all duration-200"
+              >
+                <FaLinkedin size={16} />
+              </a>
             </div>
           </div>
-        </div>
 
+          {/* Premium Layered Geometric Presentation for Profile Photo */}
+          <div className={`flex justify-center lg:justify-end hero-photo-load ${isLoaded ? 'page-loaded' : ''}`}>
+            <div className="relative group">
+              {/* Decorative background shapes */}
+              <div className="absolute -inset-1.5 rounded-[var(--radius-lg)] bg-gradient-to-tr from-indigo-500/20 to-purple-500/20 opacity-30 blur-lg transition duration-1000 group-hover:opacity-40 pointer-events-none" />
+              
+              {/* Outer offset frame */}
+              <div className="absolute inset-0 border border-indigo-500/10 rounded-[var(--radius-lg)] translate-x-3 translate-y-3 -z-10 transition-transform duration-500 ease-out group-hover:translate-x-4 group-hover:translate-y-4" />
+              
+              {/* Image Frame */}
+              <div className="relative w-56 h-56 sm:w-64 sm:h-64 md:w-72 md:h-72 rounded-[var(--radius-lg)] overflow-hidden border border-[var(--border)] bg-[var(--surface)] transition-all duration-500 ease-out group-hover:border-indigo-500/30 shadow-2xl">
+                <img
+                  src={profileImg}
+                  alt="Rajesh A.G., Flutter Developer and UI/UX Designer"
+                  className="w-full h-full object-cover object-top transition-transform duration-700 ease-out group-hover:scale-105"
+                  loading="eager"
+                  width="288"
+                  height="288"
+                />
+              </div>
+            </div>
+          </div>
+
+        </div>
       </div>
 
-      {/* Scroll indicator */}
       <Link
         to="about"
         href="#about"
-        smooth={true}
+        smooth
         duration={500}
-        offset={-80}
-        className="absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1.5 cursor-pointer text-[#C8CADE]/40 hover:text-[#684BFF] transition-all duration-300 z-10"
+        offset={-72}
+        className="absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 text-[var(--text-muted)] hover:text-[var(--accent-soft)] transition-colors cursor-pointer"
+        aria-label="Scroll to about section"
       >
-        <span className="text-[10px] tracking-widest uppercase font-semibold">
-          Scroll
-        </span>
-        <HiArrowDown
-          size={16}
-          className="animate-bounce"
-        />
+        <span className="text-[9px] uppercase tracking-widest font-semibold">Scroll</span>
+        <HiArrowDown size={12} className="animate-bounce" />
       </Link>
     </section>
   )

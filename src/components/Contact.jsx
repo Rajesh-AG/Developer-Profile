@@ -2,51 +2,14 @@ import { useEffect, useRef, useState } from 'react'
 import { FaGithub, FaLinkedin, FaEnvelope } from 'react-icons/fa'
 import { HiArrowRight } from 'react-icons/hi'
 
-/*
-|--------------------------------------------------------------------------
-| EmailJS Configuration
-|--------------------------------------------------------------------------
-| Replace these values with your actual EmailJS credentials.
-|
-| Recommended for Vite:
-|
-| VITE_EMAILJS_SERVICE_ID=...
-| VITE_EMAILJS_TEMPLATE_ID=...
-| VITE_EMAILJS_PUBLIC_KEY=...
-|
-| Then access them using import.meta.env.
-|--------------------------------------------------------------------------
-*/
+const EMAILJS_SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID || ''
+const EMAILJS_TEMPLATE_ID = import.meta.env.VITE_EMAILJS_TEMPLATE_ID || ''
+const EMAILJS_PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY || ''
+const EMAILJS_ENDPOINT = 'https://api.emailjs.com/api/v1.0/email/send'
 
-const EMAILJS_SERVICE_ID =
-  import.meta.env.VITE_EMAILJS_SERVICE_ID || ''
-
-const EMAILJS_TEMPLATE_ID =
-  import.meta.env.VITE_EMAILJS_TEMPLATE_ID || ''
-
-const EMAILJS_PUBLIC_KEY =
-  import.meta.env.VITE_EMAILJS_PUBLIC_KEY || ''
-
-const EMAILJS_ENDPOINT =
-  'https://api.emailjs.com/api/v1.0/email/send'
-
-const INITIAL_FORM = {
-  name: '',
-  email: '',
-  message: '',
-}
-
-const INITIAL_ERRORS = {
-  name: '',
-  email: '',
-  message: '',
-}
-
-const INITIAL_FOCUS = {
-  name: false,
-  email: false,
-  message: false,
-}
+const INITIAL_FORM = { name: '', email: '', message: '' }
+const INITIAL_ERRORS = { name: '', email: '', message: '' }
+const INITIAL_FOCUS = { name: false, email: false, message: false }
 
 const contactLinks = [
   {
@@ -54,226 +17,96 @@ const contactLinks = [
     label: 'Email',
     value: 'rajesh.ag.dev@gmail.com',
     href: 'mailto:rajesh.ag.dev@gmail.com',
-    color: '#684BFF',
   },
   {
     icon: FaLinkedin,
     label: 'LinkedIn',
     value: 'linkedin.com/in/rajesh-ag',
     href: 'https://linkedin.com/in/rajesh-ag',
-    color: '#0A66C2',
   },
   {
     icon: FaGithub,
     label: 'GitHub',
     value: 'github.com/Rajesh-AG',
     href: 'https://github.com/Rajesh-AG',
-    color: '#EEEEF2',
   },
 ]
 
-const isValidEmail = (email) => {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
-}
+const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
 
 const Contact = () => {
   const [form, setForm] = useState(INITIAL_FORM)
   const [errors, setErrors] = useState(INITIAL_ERRORS)
   const [isFocused, setIsFocused] = useState(INITIAL_FOCUS)
-
   const [status, setStatus] = useState('idle')
-  const [toast, setToast] = useState({
-    show: false,
-    message: '',
-    type: 'success',
-  })
-
+  const [toast, setToast] = useState({ show: false, message: '', type: 'success' })
   const toastTimerRef = useRef(null)
 
-  /*
-  |--------------------------------------------------------------------------
-  | Cleanup toast timer
-  |--------------------------------------------------------------------------
-  */
-
-  useEffect(() => {
-    return () => {
-      if (toastTimerRef.current) {
-        clearTimeout(toastTimerRef.current)
-      }
-    }
+  useEffect(() => () => {
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current)
   }, [])
 
-  /*
-  |--------------------------------------------------------------------------
-  | Toast
-  |--------------------------------------------------------------------------
-  */
-
   const triggerToast = (message, type = 'success') => {
-    if (toastTimerRef.current) {
-      clearTimeout(toastTimerRef.current)
-    }
-
-    setToast({
-      show: true,
-      message,
-      type,
-    })
-
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current)
+    setToast({ show: true, message, type })
     toastTimerRef.current = setTimeout(() => {
-      setToast({
-        show: false,
-        message: '',
-        type: 'success',
-      })
+      setToast({ show: false, message: '', type: 'success' })
     }, 4500)
   }
 
-  /*
-  |--------------------------------------------------------------------------
-  | Field validation
-  |--------------------------------------------------------------------------
-  */
-
   const validateField = (name, value) => {
-    const trimmedValue = value.trim()
-
+    const trimmed = value.trim()
     let errorMessage = ''
-
-    if (!trimmedValue) {
-      const labels = {
-        name: 'Name',
-        email: 'Email',
-        message: 'Message',
-      }
-
-      errorMessage = `${labels[name]} is required`
-    } else if (name === 'name' && trimmedValue.length < 2) {
+    if (!trimmed) {
+      errorMessage = `${name.charAt(0).toUpperCase() + name.slice(1)} is required`
+    } else if (name === 'name' && trimmed.length < 2) {
       errorMessage = 'Please enter at least 2 characters'
-    } else if (name === 'email' && !isValidEmail(trimmedValue)) {
+    } else if (name === 'email' && !isValidEmail(trimmed)) {
       errorMessage = 'Please enter a valid email address'
-    } else if (name === 'message' && trimmedValue.length < 10) {
+    } else if (name === 'message' && trimmed.length < 10) {
       errorMessage = 'Message should be at least 10 characters'
     }
-
-    setErrors((previous) => ({
-      ...previous,
-      [name]: errorMessage,
-    }))
-
+    setErrors((prev) => ({ ...prev, [name]: errorMessage }))
     return !errorMessage
   }
 
-  const validateForm = () => {
-    const nameValid = validateField('name', form.name)
-    const emailValid = validateField('email', form.email)
-    const messageValid = validateField('message', form.message)
+  const validateForm = () =>
+    ['name', 'email', 'message'].every((field) => validateField(field, form[field]))
 
-    return nameValid && emailValid && messageValid
+  const handleChange = (e) => {
+    const { name, value } = e.target
+    setForm((prev) => ({ ...prev, [name]: value }))
+    if (errors[name]) validateField(name, value)
   }
 
-  /*
-  |--------------------------------------------------------------------------
-  | Input handlers
-  |--------------------------------------------------------------------------
-  */
-
-  const handleChange = (event) => {
-    const { name, value } = event.target
-
-    setForm((previous) => ({
-      ...previous,
-      [name]: value,
-    }))
-
-    /*
-     * Only revalidate fields that already have an error.
-     * This prevents aggressive validation while typing.
-     */
-    if (errors[name]) {
-      validateField(name, value)
-    }
-  }
-
-  const handleFocus = (name) => {
-    setIsFocused((previous) => ({
-      ...previous,
-      [name]: true,
-    }))
-  }
-
-  const handleBlur = (event) => {
-    const { name, value } = event.target
-
-    setIsFocused((previous) => ({
-      ...previous,
-      [name]: false,
-    }))
-
+  const handleBlur = (e) => {
+    const { name, value } = e.target
+    setIsFocused((prev) => ({ ...prev, [name]: false }))
     validateField(name, value)
   }
 
-  /*
-  |--------------------------------------------------------------------------
-  | Submit
-  |--------------------------------------------------------------------------
-  */
-
-  const handleSubmit = async (event) => {
-    event.preventDefault()
-
-    if (status === 'sending') {
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    if (status === 'sending') return
+    if (!validateForm()) {
+      triggerToast('Please fix the highlighted fields.', 'error')
       return
     }
-
-    const valid = validateForm()
-
-    if (!valid) {
-      triggerToast(
-        'Please fix the highlighted fields.',
-        'error'
-      )
-      return
-    }
-
-    /*
-     * Configuration check
-     */
-    if (
-      !EMAILJS_SERVICE_ID ||
-      !EMAILJS_TEMPLATE_ID ||
-      !EMAILJS_PUBLIC_KEY
-    ) {
-      console.error(
-        'EmailJS configuration is missing.'
-      )
-
+    if (!EMAILJS_SERVICE_ID || !EMAILJS_TEMPLATE_ID || !EMAILJS_PUBLIC_KEY) {
       setStatus('error')
-
-      triggerToast(
-        'Email service is not configured yet.',
-        'error'
-      )
-
+      triggerToast('Email service is not configured yet.', 'error')
       return
     }
 
     setStatus('sending')
-
     try {
       const response = await fetch(EMAILJS_ENDPOINT, {
         method: 'POST',
-
-        headers: {
-          'Content-Type': 'application/json',
-        },
-
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           service_id: EMAILJS_SERVICE_ID,
           template_id: EMAILJS_TEMPLATE_ID,
           user_id: EMAILJS_PUBLIC_KEY,
-
           template_params: {
             from_name: form.name.trim(),
             reply_to: form.email.trim(),
@@ -281,611 +114,133 @@ const Contact = () => {
           },
         }),
       })
-
-      if (!response.ok) {
-        const errorText = await response.text()
-
-        console.error(
-          'EmailJS error:',
-          errorText
-        )
-
-        throw new Error(
-          'Email could not be sent.'
-        )
-      }
-
+      if (!response.ok) throw new Error('Email could not be sent.')
       setStatus('success')
-
       setForm(INITIAL_FORM)
       setErrors(INITIAL_ERRORS)
       setIsFocused(INITIAL_FOCUS)
-
-      triggerToast(
-        "Message sent successfully! I'll get back to you soon.",
-        'success'
-      )
-    } catch (error) {
-      console.error(
-        'Contact form error:',
-        error
-      )
-
+      triggerToast("Message sent! I'll get back to you soon.", 'success')
+    } catch {
       setStatus('error')
-
-      triggerToast(
-        'Something went wrong. Please try again.',
-        'error'
-      )
+      triggerToast('Something went wrong. Please try again.', 'error')
     } finally {
-      setStatus((previous) =>
-        previous === 'sending'
-          ? 'idle'
-          : previous
-      )
+      setStatus((prev) => (prev === 'sending' ? 'idle' : prev))
     }
   }
 
-  /*
-  |--------------------------------------------------------------------------
-  | Dynamic field class
-  |--------------------------------------------------------------------------
-  */
-
-  const getFieldClass = (name) => {
-    const hasError = Boolean(errors[name])
-    const focused = isFocused[name]
-    const hasValue = Boolean(form[name])
-
-    const base =
-      'w-full px-4 py-3.5 rounded-xl text-sm text-[#EEEEF2] bg-[#0C0D14] border outline-none transition-all duration-300 placeholder:text-transparent'
-
-    if (hasError) {
-      return `${base} border-[#EF4444] focus:border-[#EF4444] focus:ring-2 focus:ring-[#EF4444]/10`
-    }
-
-    if (focused || hasValue) {
-      return `${base} border-[#684BFF] shadow-[0_0_0_3px_rgba(104,75,255,0.08)]`
-    }
-
-    return `${base} border-[#6C63FF]/15 hover:border-[#6C63FF]/30 focus:border-[#684BFF]`
+  const fieldClass = (name) => {
+    const base = 'w-full px-4 py-3 rounded-[var(--radius)] text-sm text-[var(--text-bright)] bg-[var(--bg)] border outline-none transition-all duration-200 placeholder:text-transparent'
+    if (errors[name]) return `${base} border-red-500/50 focus:border-red-500 focus:ring-1 focus:ring-red-500/50`
+    if (isFocused[name] || form[name]) return `${base} border-indigo-500/60 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/50`
+    return `${base} border-[var(--border)] hover:border-[var(--border-hover)]`
   }
 
-  const getLabelClass = (name) => {
-    const active =
-      isFocused[name] ||
-      Boolean(form[name])
-
-    return `
-      absolute
-      left-3.5
-      pointer-events-none
-      transition-all
-      duration-200
-      px-1.5
-      rounded-md
-      ${
-        active
-          ? '-top-2 text-[11px] text-[#A78BFA] bg-[#13151F]'
-          : 'top-[18px] text-sm text-[#9CA3AF]'
-      }
-    `
+  const labelClass = (name) => {
+    const active = isFocused[name] || form[name]
+    return `absolute left-3.5 pointer-events-none transition-all duration-200 px-1 rounded ${
+      active ? '-top-2 text-[10px] text-indigo-400 bg-[var(--surface)]' : 'top-[13px] text-xs sm:text-sm text-[var(--text-muted)]'
+    }`
   }
 
   return (
-    <section
-      id="contact"
-      className="
-        relative
-        overflow-hidden
-        bg-[#0C0D14]
-        px-5
-        py-12
-        sm:px-6
-        md:py-16
-      "
-      aria-labelledby="contact-heading"
-    >
-      {/* =========================================================
-          Background Decoration
-      ========================================================== */}
-
-      <div
-        aria-hidden="true"
-        className="
-          pointer-events-none
-          absolute
-          -left-32
-          top-20
-          h-72
-          w-72
-          rounded-full
-          bg-[#684BFF]/5
-          blur-3xl
-        "
-      />
-
-      <div
-        aria-hidden="true"
-        className="
-          pointer-events-none
-          absolute
-          -right-32
-          bottom-10
-          h-72
-          w-72
-          rounded-full
-          bg-[#8B5CF6]/5
-          blur-3xl
-        "
-      />
-
-      {/* =========================================================
-          Toast
-      ========================================================== */}
-
+    <section id="contact" className="section bg-[var(--bg)]" aria-labelledby="contact-heading">
       {toast.show && (
         <div
           role="status"
           aria-live="polite"
-          className={`
-            fixed
-            bottom-5
-            left-5
-            right-5
-            sm:left-auto
-            sm:right-6
-            sm:bottom-6
-            z-[100]
-            flex
-            items-start
-            gap-3
-            rounded-xl
-            border
-            px-4
-            py-3.5
-            shadow-2xl
-            backdrop-blur-xl
-            animate-fade-in
-            ${
-              toast.type === 'success'
-                ? 'border-emerald-400/20 bg-emerald-500/10'
-                : 'border-red-400/20 bg-red-500/10'
-            }
-          `}
+          className={`fixed bottom-5 left-5 right-5 sm:left-auto sm:right-6 sm:bottom-6 z-[100] flex items-center justify-between gap-3 rounded-[var(--radius)] border px-4 py-3 shadow-2xl animate-fade-in ${
+            toast.type === 'success'
+              ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300'
+              : 'border-red-500/30 bg-red-500/10 text-red-300'
+          }`}
         >
-          <span
-            className="mt-0.5 text-base"
-            aria-hidden="true"
-          >
-            {toast.type === 'success' ? '✓' : '×'}
-          </span>
-
-          <span
-            className={`
-              text-sm
-              font-medium
-              ${
-                toast.type === 'success'
-                  ? 'text-emerald-200'
-                  : 'text-red-200'
-              }
-            `}
-          >
-            {toast.message}
-          </span>
+          <span className="text-xs font-semibold">{toast.message}</span>
         </div>
       )}
 
-      {/* =========================================================
-          Main Container
-      ========================================================== */}
-
-      <div className="relative mx-auto max-w-[1100px]">
-        {/* =======================================================
-            Section Header
-        ======================================================== */}
-
-        <div className="mb-8 md:mb-10">
-          <p
-            className="
-              mb-3
-              text-[11px]
-              font-bold
-              uppercase
-              tracking-[0.25em]
-              text-[#684BFF]
-            "
-          >
-            Get In Touch
+      <div className="section-inner px-6">
+        <header className="section-header">
+          <p className="eyebrow">Contact</p>
+          <h2 id="contact-heading" className="section-title">Get in touch</h2>
+          <p className="section-subtitle">
+            Open to freelance projects, full-time roles, and internship opportunities.
           </p>
+          <div className="section-accent" />
+        </header>
 
-          <h2
-            id="contact-heading"
-            className="
-              mb-4
-              text-3xl
-              font-bold
-              tracking-tight
-              text-[#EEEEF2]
-              sm:text-4xl
-            "
-            style={{
-              fontFamily:
-                'Space Grotesk, sans-serif',
-            }}
-          >
-            Contact Me
-          </h2>
+        <div className="grid grid-cols-1 lg:grid-cols-[0.9fr_1.1fr] gap-12 lg:gap-16 max-w-4xl mx-auto">
+          
+          <div className="flex flex-col justify-between">
+            <p className="text-sm sm:text-base text-[var(--text)] leading-relaxed mb-6">
+              Have a project in mind or want to connect? Send a message and I&apos;ll respond within 24–48 hours.
+            </p>
 
-          <div
-            className="
-              h-[3px]
-              w-12
-              rounded-full
-              bg-[#684BFF]
-            "
-          />
-        </div>
-
-        {/* =======================================================
-            Content Grid
-        ======================================================== */}
-
-        <div
-          className="
-            grid
-            grid-cols-1
-            gap-10
-            lg:grid-cols-[0.85fr_1.15fr]
-            lg:gap-14
-          "
-        >
-          {/* =====================================================
-              LEFT COLUMN
-          ====================================================== */}
-
-          <div className="flex flex-col text-left">
-            <div className="mb-8">
-              <h3
-                className="
-                  mb-4
-                  text-2xl
-                  font-bold
-                  tracking-tight
-                  text-[#EEEEF2]
-                "
-                style={{
-                  fontFamily:
-                    'Space Grotesk, sans-serif',
-                }}
-              >
-                Let&apos;s Work Together
-              </h3>
-
-              <p
-                className="
-                  max-w-lg
-                  text-[15px]
-                  leading-7
-                  text-[#9CA3AF]
-                "
-              >
-                I&apos;m currently open to freelance
-                projects, full-time roles, and
-                internship opportunities. Have a
-                project in mind or simply want to
-                connect? Send me a message and I&apos;ll
-                get back to you as soon as possible.
-              </p>
-            </div>
-
-            {/* =================================================
-                Contact Links
-            ================================================== */}
-
-            <div
-              className="flex flex-col gap-3"
-              aria-label="Contact links"
-            >
+            <div className="flex flex-col gap-3 w-full" aria-label="Contact links">
               {contactLinks.map((link) => {
                 const Icon = link.icon
-
-                const isExternal =
-                  link.href.startsWith('http')
-
+                const isExternal = link.href.startsWith('http')
                 return (
                   <a
                     key={link.label}
                     href={link.href}
-                    target={
-                      isExternal
-                        ? '_blank'
-                        : undefined
-                    }
-                    rel={
-                      isExternal
-                        ? 'noopener noreferrer'
-                        : undefined
-                    }
-                    className="
-                      group
-                      flex
-                      items-center
-                      gap-4
-                      rounded-xl
-                      border
-                      border-[#6C63FF]/10
-                      bg-[#13151F]
-                      p-4
-                      transition-all
-                      duration-200
-                      ease-out
-                      hover:-translate-y-0.5
-                      hover:border-[#684BFF]/35
-                      hover:bg-[#161823]
-                      focus-visible:outline-none
-                      focus-visible:ring-2
-                      focus-visible:ring-[#684BFF]
-                      focus-visible:ring-offset-2
-                      focus-visible:ring-offset-[#0C0D14]
-                    "
+                    target={isExternal ? '_blank' : undefined}
+                    rel={isExternal ? 'noopener noreferrer' : undefined}
+                    className="card card-interactive group flex items-center gap-4 p-4 hover:border-indigo-500/20"
                   >
-                    {/* Icon */}
-
-                    <div
-                      className="
-                        flex
-                        h-11
-                        w-11
-                        flex-shrink-0
-                        items-center
-                        justify-center
-                        rounded-xl
-                        border
-                        border-white/5
-                        transition-transform
-                        duration-200
-                        group-hover:scale-[1.03]
-                      "
-                      style={{
-                        backgroundColor:
-                          `${link.color}12`,
-                        color: link.color,
-                      }}
-                    >
-                      <Icon size={19} />
+                    <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-[var(--radius-sm)] bg-[var(--surface-2)] text-[var(--text-muted)] group-hover:text-indigo-400 group-hover:bg-indigo-500/5 transition-all">
+                      <Icon size={16} />
                     </div>
-
-                    {/* Text */}
-
                     <div className="min-w-0 flex-1">
-                      <p
-                        className="
-                          mb-1
-                          text-[10px]
-                          font-bold
-                          uppercase
-                          tracking-[0.18em]
-                          text-[#6B7280]
-                        "
-                        style={{
-                          fontFamily:
-                            'Space Grotesk, sans-serif',
-                        }}
-                      >
+                      <p className="text-[10px] font-semibold uppercase tracking-wider text-[var(--text-muted)] mb-0.5">
                         {link.label}
                       </p>
-
-                      <p
-                        className="
-                          truncate
-                          text-sm
-                          font-semibold
-                          text-[#C4B5FD]
-                        "
-                      >
-                        {link.value}
-                      </p>
+                      <p className="truncate text-xs sm:text-sm font-semibold text-[var(--text-bright)]">{link.value}</p>
                     </div>
-
-                    {/* Arrow */}
-
                     <HiArrowRight
-                      size={17}
+                      size={14}
                       aria-hidden="true"
-                      className="
-                        flex-shrink-0
-                        text-[#684BFF]
-                        opacity-0
-                        -translate-x-1
-                        transition-all
-                        duration-200
-                        group-hover:translate-x-0
-                        group-hover:opacity-100
-                      "
+                      className="text-indigo-400 opacity-0 -translate-x-1 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-0"
                     />
                   </a>
                 )
               })}
             </div>
-
-            {/* Small supporting text */}
-
-            <p
-              className="
-                mt-6
-                text-xs
-                leading-5
-                text-[#6B7280]
-              "
-            >
-              I usually respond within 24–48 hours.
-            </p>
           </div>
 
-          {/* =====================================================
-              RIGHT COLUMN — FORM
-          ====================================================== */}
+          <div className="card p-6 sm:p-7 border border-[var(--border)] bg-[var(--surface)]">
+            <h3 className="font-[family-name:var(--font-display)] text-base sm:text-lg font-bold text-[var(--text-bright)] mb-1">
+              Send a message
+            </h3>
+            <p className="text-xs text-[var(--text-muted)] mb-5">
+              Tell me about your project or opportunity.
+            </p>
 
-          <div
-            className="
-              rounded-2xl
-              border
-              border-[#6C63FF]/10
-              bg-[#13151F]
-              p-5
-              shadow-[0_20px_60px_rgba(0,0,0,0.18)]
-              sm:p-8
-            "
-          >
-            <div className="mb-7">
-              <h3
-                className="
-                  text-lg
-                  font-bold
-                  text-[#EEEEF2]
-                "
-                style={{
-                  fontFamily:
-                    'Space Grotesk, sans-serif',
-                }}
-              >
-                Send a Message
-              </h3>
-
-              <p
-                className="
-                  mt-1.5
-                  text-sm
-                  text-[#6B7280]
-                "
-              >
-                Tell me a little about your project,
-                idea, or opportunity.
-              </p>
-            </div>
-
-            <form
-              onSubmit={handleSubmit}
-              className="flex flex-col gap-5"
-              noValidate
-            >
-              {/* =================================================
-                  NAME
-              ================================================== */}
-
-              <div className="relative pt-2">
-                <input
-                  id="contact-name"
-                  type="text"
-                  name="name"
-                  value={form.name}
-                  onChange={handleChange}
-                  onFocus={() =>
-                    handleFocus('name')
-                  }
-                  onBlur={handleBlur}
-                  disabled={
-                    status === 'sending'
-                  }
-                  autoComplete="name"
-                  placeholder="Name"
-                  aria-label="Name"
-                  aria-invalid={
-                    Boolean(errors.name)
-                  }
-                  aria-describedby={
-                    errors.name
-                      ? 'name-error'
-                      : undefined
-                  }
-                  className={getFieldClass('name')}
-                />
-
-                <label
-                  htmlFor="contact-name"
-                  className={getLabelClass('name')}
-                >
-                  Name
-                </label>
-
-                {errors.name && (
-                  <p
-                    id="name-error"
-                    role="alert"
-                    className="
-                      mt-1.5
-                      px-1
-                      text-xs
-                      font-medium
-                      text-[#EF4444]
-                    "
-                  >
-                    {errors.name}
-                  </p>
-                )}
-              </div>
-
-              {/* =================================================
-                  EMAIL
-              ================================================== */}
-
-              <div className="relative pt-2">
-                <input
-                  id="contact-email"
-                  type="email"
-                  name="email"
-                  value={form.email}
-                  onChange={handleChange}
-                  onFocus={() =>
-                    handleFocus('email')
-                  }
-                  onBlur={handleBlur}
-                  disabled={
-                    status === 'sending'
-                  }
-                  autoComplete="email"
-                  placeholder="Email"
-                  aria-label="Email"
-                  aria-invalid={
-                    Boolean(errors.email)
-                  }
-                  aria-describedby={
-                    errors.email
-                      ? 'email-error'
-                      : undefined
-                  }
-                  className={getFieldClass('email')}
-                />
-
-                <label
-                  htmlFor="contact-email"
-                  className={getLabelClass('email')}
-                >
-                  Email
-                </label>
-
-                {errors.email && (
-                  <p
-                    id="email-error"
-                    role="alert"
-                    className="
-                      mt-1.5
-                      px-1
-                      text-xs
-                      font-medium
-                      text-[#EF4444]
-                    "
-                  >
-                    {errors.email}
-                  </p>
-                )}
-              </div>
-
-              {/* =================================================
-                  MESSAGE
-              ================================================== */}
+            <form onSubmit={handleSubmit} className="flex flex-col gap-4" noValidate>
+              {['name', 'email'].map((field) => (
+                <div key={field} className="relative pt-2">
+                  <input
+                    id={`contact-${field}`}
+                    type={field === 'email' ? 'email' : 'text'}
+                    name={field}
+                    value={form[field]}
+                    onChange={handleChange}
+                    onFocus={() => setIsFocused((p) => ({ ...p, [field]: true }))}
+                    onBlur={handleBlur}
+                    disabled={status === 'sending'}
+                    autoComplete={field === 'email' ? 'email' : 'name'}
+                    placeholder={field.charAt(0).toUpperCase() + field.slice(1)}
+                    aria-invalid={Boolean(errors[field])}
+                    aria-describedby={errors[field] ? `${field}-error` : undefined}
+                    className={fieldClass(field)}
+                  />
+                  <label htmlFor={`contact-${field}`} className={labelClass(field)}>
+                    {field.charAt(0).toUpperCase() + field.slice(1)}
+                  </label>
+                  {errors[field] && (
+                    <p id={`${field}-error`} role="alert" className="mt-1 text-[11px] text-red-400">{errors[field]}</p>
+                  )}
+                </div>
+              ))}
 
               <div className="relative pt-2">
                 <textarea
@@ -893,146 +248,32 @@ const Contact = () => {
                   name="message"
                   value={form.message}
                   onChange={handleChange}
-                  onFocus={() =>
-                    handleFocus('message')
-                  }
+                  onFocus={() => setIsFocused((p) => ({ ...p, message: true }))}
                   onBlur={handleBlur}
-                  disabled={
-                    status === 'sending'
-                  }
+                  disabled={status === 'sending'}
                   placeholder="Message"
-                  aria-label="Message"
-                  aria-invalid={
-                    Boolean(errors.message)
-                  }
-                  aria-describedby={
-                    errors.message
-                      ? 'message-error'
-                      : undefined
-                  }
-                  rows={5}
-                  className={`
-                    ${getFieldClass('message')}
-                    min-h-[140px]
-                    resize-y
-                  `}
+                  aria-invalid={Boolean(errors.message)}
+                  aria-describedby={errors.message ? 'message-error' : undefined}
+                  rows={4}
+                  className={`${fieldClass('message')} min-h-[100px] resize-y`}
                 />
-
-                <label
-                  htmlFor="contact-message"
-                  className={getLabelClass('message')}
-                >
-                  Message
-                </label>
-
+                <label htmlFor="contact-message" className={labelClass('message')}>Message</label>
                 {errors.message && (
-                  <p
-                    id="message-error"
-                    role="alert"
-                    className="
-                      mt-1.5
-                      px-1
-                      text-xs
-                      font-medium
-                      text-[#EF4444]
-                    "
-                  >
-                    {errors.message}
-                  </p>
+                  <p id="message-error" role="alert" className="mt-1 text-[11px] text-red-400">{errors.message}</p>
                 )}
               </div>
 
-              {/* =================================================
-                  SUBMIT BUTTON
-              ================================================== */}
-
               <button
                 type="submit"
-                disabled={
-                  status === 'sending'
-                }
-                aria-busy={
-                  status === 'sending'
-                }
-                className="
-                  mt-1
-                  flex
-                  w-full
-                  items-center
-                  justify-center
-                  gap-2
-                  rounded-xl
-                  bg-gradient-to-r
-                  from-[#684BFF]
-                  to-[#8B5CF6]
-                  px-5
-                  py-4
-                  text-sm
-                  font-bold
-                  text-white
-                  transition-all
-                  duration-200
-                  ease-out
-                  hover:-translate-y-0.5
-                  hover:shadow-[0_12px_30px_rgba(104,75,255,0.22)]
-                  focus-visible:outline-none
-                  focus-visible:ring-2
-                  focus-visible:ring-[#A78BFA]
-                  focus-visible:ring-offset-2
-                  focus-visible:ring-offset-[#13151F]
-                  active:translate-y-0
-                  disabled:cursor-not-allowed
-                  disabled:opacity-60
-                  disabled:hover:translate-y-0
-                  disabled:hover:shadow-none
-                "
-                style={{
-                  fontFamily:
-                    'Space Grotesk, sans-serif',
-                }}
+                disabled={status === 'sending'}
+                aria-busy={status === 'sending'}
+                className="btn btn-primary w-full disabled:opacity-60 disabled:cursor-not-allowed hover:scale-[1.01] active:scale-[0.99] transition-all py-2.5 text-xs font-semibold"
               >
-                {status === 'sending' ? (
-                  <>
-                    <svg
-                      className="
-                        h-5
-                        w-5
-                        animate-spin
-                      "
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      aria-hidden="true"
-                    >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      />
-
-                      <path
-                        className="opacity-90"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                      />
-                    </svg>
-
-                    Sending...
-                  </>
-                ) : (
-                  <>
-                    Send Message
-                    <span aria-hidden="true">
-                      →
-                    </span>
-                  </>
-                )}
+                {status === 'sending' ? 'Sending…' : 'Send message'}
               </button>
             </form>
           </div>
+          
         </div>
       </div>
     </section>

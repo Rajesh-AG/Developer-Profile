@@ -7,14 +7,13 @@ export const useScrollReveal = (delay = 0) => {
     const el = ref.current
     if (!el) return
 
-    // Check reduced motion preference
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     if (prefersReducedMotion) {
       el.classList.add('is-visible')
       return
     }
 
-    el.classList.add('reveal-card')
+    el.classList.add('reveal')
     if (delay) {
       el.style.setProperty('--reveal-delay', `${delay}ms`)
     }
@@ -24,26 +23,23 @@ export const useScrollReveal = (delay = 0) => {
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          // Temporarily enable will-change for compositor layer optimization
           el.style.willChange = 'transform, opacity'
           el.classList.add('is-visible')
 
-          // Clean up will-change after transition completes (400ms duration + delay)
           timeoutId = setTimeout(() => {
             if (el) el.style.willChange = 'auto'
-          }, 400 + delay)
+          }, 500 + delay)
 
           observer.unobserve(el)
         }
       },
-      { threshold: 0.15 } // Trigger when 15% of the element is visible
+      { threshold: 0.12 }
     )
 
     observer.observe(el)
 
     return () => {
       if (timeoutId) clearTimeout(timeoutId)
-      if (el) observer.unobserve(el)
       observer.disconnect()
     }
   }, [delay])

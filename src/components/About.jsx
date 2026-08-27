@@ -1,63 +1,52 @@
 import { useScrollReveal } from '../hooks/useScrollReveal'
 import { useCounter } from '../hooks/useCounter'
-import {
-  FaMobileAlt,
-  FaPaintBrush,
-  FaChalkboardTeacher,
-} from 'react-icons/fa'
+import { FaMobileAlt, FaPaintBrush, FaChalkboardTeacher } from 'react-icons/fa'
 
-const StatCard = ({ target, suffix, label, index }) => {
-  const revealRef = useScrollReveal(index * 60)
-  const [counterRef, count] = useCounter(parseInt(target, 10))
+const highlights = [
+  {
+    icon: <FaMobileAlt size={18} />,
+    title: 'Flutter Development',
+    desc: 'Building performant cross-platform mobile products with Dart, Firebase, state management, and clean architecture.',
+  },
+  {
+    icon: <FaPaintBrush size={18} />,
+    title: 'UI/UX Design',
+    desc: 'Translating Figma design systems into responsive, accessible, and high-fidelity code bases.',
+  },
+  {
+    icon: <FaChalkboardTeacher size={18} />,
+    title: 'Technical Mentoring',
+    desc: 'Guiding developers through mobile patterns, source control, and clean engineering practices.',
+  },
+]
 
+const HighlightCard = ({ item, index }) => {
+  const ref = useScrollReveal(index * 60)
   return (
     <div
-      ref={revealRef}
-      className="flex flex-col items-center justify-center p-6 rounded-2xl border text-center bg-[#13151F] border-[var(--border)] hover:border-[var(--border-hover)] transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-[var(--accent)]/5 cursor-default"
+      ref={ref}
+      className="card p-6 flex gap-4 items-start hover:border-indigo-500/20 hover:bg-white/[0.01] transition-all"
     >
-      <span
-        ref={counterRef}
-        className="text-[48px] font-bold mb-1 leading-none text-[#EEEEF2]"
-        style={{ fontFamily: 'Space Grotesk, sans-serif' }}
-      >
-        {count}{suffix}
-      </span>
-
-      <span className="text-[#C8CADE]/60 text-[13px] font-semibold leading-snug mt-1.5 uppercase tracking-wider">
-        {label}
-      </span>
+      <div className="w-10 h-10 rounded-[var(--radius-sm)] flex items-center justify-center text-[var(--text-muted)] bg-[var(--surface-2)] flex-shrink-0 group-hover:text-[var(--accent-soft)] transition-colors">
+        {item.icon}
+      </div>
+      <div>
+        <h3 className="text-sm font-semibold text-[var(--text-bright)] mb-1.5">{item.title}</h3>
+        <p className="text-xs text-[var(--text-muted)] leading-relaxed">{item.desc}</p>
+      </div>
     </div>
   )
 }
 
-const RoleCard = ({ role, index }) => {
-  const revealRef = useScrollReveal(index * 60)
-
+const StatItem = ({ targetVal, suffix, label }) => {
+  const [ref, count] = useCounter(targetVal, 1200)
   return (
-    <div
-      ref={revealRef}
-      className="p-7 rounded-2xl border bg-[#13151F] border-[var(--border)] transition-all duration-300 hover:border-[var(--border-hover)] hover:-translate-y-1.5 hover:shadow-xl hover:shadow-[var(--accent)]/5 group cursor-default"
-    >
-      {/* Icon Container */}
-      <div
-        className="w-12 h-12 rounded-xl flex items-center justify-center mb-6 text-[#A78BFA] bg-[#6C63FF]/10 group-hover:bg-[#684BFF] group-hover:text-white transition-all duration-300"
-      >
-        <div className="group-hover:scale-110 transition-transform duration-300">
-          {role.icon}
-        </div>
-      </div>
-
-      {/* Title */}
-      <h3
-        className="text-[#EEEEF2] text-[1.05rem] font-bold mb-3"
-        style={{ fontFamily: 'Space Grotesk, sans-serif' }}
-      >
-        {role.title}
-      </h3>
-
-      {/* Description */}
-      <p className="text-[#C8CADE]/75 text-sm leading-relaxed">
-        {role.desc}
+    <div ref={ref} className="text-left">
+      <span className="font-[family-name:var(--font-display)] text-3xl sm:text-4xl font-extrabold text-[var(--text-bright)] tracking-tight">
+        {count}{suffix}
+      </span>
+      <p className="text-[10px] font-semibold uppercase tracking-wider text-[var(--text-muted)] mt-1">
+        {label}
       </p>
     </div>
   )
@@ -66,124 +55,60 @@ const RoleCard = ({ role, index }) => {
 const About = () => {
   const bioRef = useScrollReveal(0)
 
-  const statsList = [
-    { value: '10', suffix: '+', label: 'Apps Shipped' },
-    { value: '1', suffix: '', label: 'Year in Production' },
-    { value: '50', suffix: '+', label: 'Students Mentored' },
-    { value: '15', suffix: '+', label: 'Technologies' },
-  ]
-
-  const roles = [
-    {
-      icon: <FaMobileAlt size={22} />,
-      title: 'Flutter Developer',
-      desc: 'Building scalable cross-platform mobile applications with Flutter, Dart, Firebase, REST APIs, state management, and maintainable MVVM architecture.',
-    },
-    {
-      icon: <FaPaintBrush size={22} />,
-      title: 'UI/UX Developer',
-      desc: 'Creating clean, accessible, and responsive interfaces with strong attention to usability, visual hierarchy, consistency, and real-world user experience.',
-    },
-    {
-      icon: <FaChalkboardTeacher size={22} />,
-      title: 'Technical Mentor',
-      desc: 'Guiding engineering students and interns through Flutter, React, web development, Git & GitHub, and practical software engineering workflows.',
-    },
-  ]
-
   return (
-    <section
-      id="about"
-      className="py-12 md:py-16 px-6 overflow-hidden bg-[#0C0D14]"
-    >
-      <div className="max-w-[1100px] mx-auto flex flex-col gap-10 md:gap-14">
-        
-        {/* Section Header */}
-        <div className="flex flex-col items-start text-left">
-          <p className="text-[11px] font-bold tracking-[0.25em] uppercase mb-3 text-[#684BFF]">
-            Who I Am
-          </p>
+    <section id="about" className="section bg-[var(--bg-elevated)]">
+      <div className="section-inner px-6">
+        <header className="section-header">
+          <p className="eyebrow">About Me</p>
+          <h2 className="section-title">Building products with code and design</h2>
+          <div className="section-accent" />
+        </header>
 
-          <h2
-            className="text-3xl md:text-[36px] font-bold text-[#EEEEF2] leading-tight max-w-xl"
-            style={{ fontFamily: 'Space Grotesk, sans-serif' }}
-          >
-            Building Digital Products with Code &amp; Design
-          </h2>
-        </div>
-
-        {/* 60/40 Split Grid: Bio & Stats */}
-        <div className="flex flex-col lg:flex-row gap-12 lg:gap-16 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-12 lg:gap-16 items-start">
           
-          {/* Left Column (60% width): Bio & Resume Button */}
-          <div
-            ref={bioRef}
-            className="w-full lg:w-[60%] flex flex-col items-start text-left space-y-6"
-          >
-            <p className="text-[#9CA3AF] text-base leading-[1.8]">
-              I am a mobile developer and B.Tech Information Technology graduate specializing in cross-platform development with{' '}
-              <span className="text-[#A78BFA] font-semibold">
-                Flutter and Dart
-              </span>
-              . Having worked as a Flutter Developer Intern at Innolift Ventures (concluding in Dec 2025), I build production mobile applications integrated with Firebase, RESTful APIs, and responsive design systems.
+          <div ref={bioRef} className="flex flex-col gap-6 text-[var(--text)] text-sm sm:text-base leading-relaxed">
+            <p>
+              I&apos;m a mobile developer and B.Tech Information Technology (Honours) graduate specializing in
+              cross-platform development with <strong className="text-[var(--text-bright)] font-semibold">Flutter and Dart</strong>.
+              During my internship at Innolift Ventures, I shipped production mobile applications integrated with 
+              Firebase services, RESTful APIs, and pixel-perfect design systems.
+            </p>
+            <p>
+              My expertise bridges <strong className="text-[var(--text-bright)] font-semibold">UI/UX development</strong> and
+              system engineering. I design design-to-code workflows in Figma and compile them into clean, responsive, 
+              and accessible interfaces.
+            </p>
+            <p>
+              Additionally, as a <strong className="text-[var(--text-bright)] font-semibold">Technical Trainer</strong>, I enjoy
+              mentoring junior engineers, helping them master Git version control, mobile application architecture, and 
+              modular software design.
             </p>
 
-            <p className="text-[#9CA3AF] text-base leading-[1.8]">
-              My engineering approach is backed by hands-on{' '}
-              <span className="text-[#A78BFA] font-semibold">
-                UI/UX development
-              </span>{' '}
-              experience. I design interfaces in Figma and translate them directly into clean, responsive layouts, maintaining usability and visual consistency across both mobile and web frameworks like React.
-            </p>
-
-            <p className="text-[#9CA3AF] text-base leading-[1.8]">
-              I also work as a{' '}
-              <span className="text-[#A78BFA] font-semibold">
-                Technical Trainer
-              </span>
-              , mentoring engineering students and interns through source control workflows, mobile patterns, and clean code architectures. This background reinforces my collaborative standards and technical communication.
-            </p>
-
-            {/* Resume Button */}
-            <div className="pt-4">
-              <a
-                href="/resume.pdf"
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-2.5 px-7 py-3.5 rounded-xl text-sm font-bold text-white transition-all duration-300 hover:scale-[1.03] hover:shadow-lg hover:shadow-[#684BFF]/30 bg-[#684BFF]"
-              >
+            <div className="pt-2">
+              <a href="/resume.pdf" target="_blank" rel="noreferrer" className="btn btn-primary hover:scale-[1.02] active:scale-[0.98] transition-all">
                 Download Resume
-                <span className="text-base leading-none">↓</span>
               </a>
+            </div>
+
+            {/* Horizontal Animated Statistics */}
+            <div className="grid grid-cols-3 gap-4 pt-8 border-t border-[var(--border)] max-w-md w-full mt-2">
+              <StatItem targetVal={10} suffix="+" label="Apps Shipped" />
+              <StatItem targetVal={50} suffix="+" label="Mentored" />
+              <StatItem targetVal={1} suffix=" Yr" label="Experience" />
             </div>
           </div>
 
-          {/* Right Column (40% width): Stats cards */}
-          <div className="w-full lg:w-[40%] grid grid-cols-2 gap-4 self-stretch">
-            {statsList.map((stat, idx) => (
-              <StatCard
-                key={idx}
-                target={stat.value}
-                suffix={stat.suffix}
-                label={stat.label}
-                index={idx}
-              />
+          {/* Highlights in Right Column */}
+          <div className="flex flex-col gap-4">
+            <p className="text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)] mb-1">
+              Core Focus areas
+            </p>
+            {highlights.map((item, idx) => (
+              <HighlightCard key={item.title} item={item} index={idx} />
             ))}
           </div>
 
         </div>
-
-        {/* 3 Role Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
-          {roles.map((role, idx) => (
-            <RoleCard
-              key={role.title}
-              role={role}
-              index={idx}
-            />
-          ))}
-        </div>
-
       </div>
     </section>
   )

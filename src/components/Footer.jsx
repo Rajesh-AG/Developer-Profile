@@ -3,130 +3,71 @@ import { Link } from 'react-scroll'
 
 const navLinks = [
   { label: 'About', to: 'about' },
-  { label: 'Skills', to: 'skills' },
+  { label: 'Experience', to: 'experience' },
   { label: 'Projects', to: 'projects' },
+  { label: 'Skills', to: 'skills' },
   { label: 'Contact', to: 'contact' },
 ]
 
 const socialLinks = [
-  {
-    icon: <FaGithub size={18} />,
-    href: 'https://github.com/Rajesh-AG',
-    label: 'GitHub',
-  },
-  {
-    icon: <FaLinkedin size={18} />,
-    href: 'https://linkedin.com/in/rajesh-ag',
-    label: 'LinkedIn',
-  },
-  {
-    icon: <FaEnvelope size={18} />,
-    href: 'mailto:rajesh.ag.dev@gmail.com',
-    label: 'Email',
-  },
+  { icon: FaGithub, href: 'https://github.com/Rajesh-AG', label: 'GitHub' },
+  { icon: FaLinkedin, href: 'https://linkedin.com/in/rajesh-ag', label: 'LinkedIn' },
+  { icon: FaEnvelope, href: 'mailto:rajesh.ag.dev@gmail.com', label: 'Email' },
 ]
 
-const Footer = () => {
-  const year = new Date().getFullYear()
-
-  return (
-    <footer
-      className="w-full px-6 py-12"
-      style={{
-        background: '#13151F',
-        borderTop: '1px solid rgba(108,99,255,0.12)',
-      }}
-    >
-      <div className="max-w-[1100px] mx-auto">
-
-        {/* Top Row */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-8 mb-10">
-
-          {/* Logo + Tagline */}
-          <div className="flex flex-col items-center sm:items-start gap-1">
-            <span
-              className="text-xl font-bold text-[#EEEEF2]"
-              style={{ fontFamily: 'Space Grotesk, sans-serif' }}
-            >
-              Rajesh<span className="text-[#6C63FF]">.</span>
-            </span>
-
-            <p className="text-[#C8CADE] text-xs opacity-60">
-              Flutter Developer · UI/UX · Mentor
-            </p>
-          </div>
-
-          {/* Navigation */}
-          <ul className="flex flex-wrap justify-center gap-6 list-none">
-            {navLinks.map((link) => (
-              <li key={link.to}>
-                <Link
-                  to={link.to}
-                  href={`#${link.to}`}
-                  smooth={true}
-                  duration={500}
-                  offset={-80}
-                  className="text-[#C8CADE] text-sm cursor-pointer hover:text-[#A78BFA] transition-colors duration-200"
-                >
-                  {link.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-
-          {/* Social Icons */}
-          <div className="flex items-center gap-4">
-            {socialLinks.map((link) => (
-              <a
-                key={link.label}
-                href={link.href}
-                target="_blank"
-                rel="noreferrer"
-                aria-label={link.label}
-                className="w-9 h-9 rounded-lg flex items-center justify-center text-[#C8CADE] border transition-all duration-200 hover:text-[#6C63FF] hover:border-[#6C63FF]/40 hover:-translate-y-0.5"
-                style={{
-                  background: 'rgba(108,99,255,0.06)',
-                  borderColor: 'rgba(108,99,255,0.15)',
-                }}
-              >
-                {link.icon}
-              </a>
-            ))}
-          </div>
+const Footer = () => (
+  <footer className="border-t border-[var(--border)] bg-[var(--surface)] px-6 py-8">
+    <div className="section-inner">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-6 mb-6">
+        <div className="text-center sm:text-left">
+          <p className="font-[family-name:var(--font-display)] text-base font-bold text-[var(--text-bright)]">
+            Rajesh<span className="text-[var(--accent)]">.</span>
+          </p>
+          <p className="text-xs text-[var(--text-muted)] mt-0.5">
+            Flutter Developer · UI/UX · Mentor
+          </p>
         </div>
 
-        {/* Divider */}
-        <div
-          className="w-full h-px mb-8"
-          style={{
-            background: 'rgba(108,99,255,0.1)',
-          }}
-        />
+        <ul className="flex flex-wrap justify-center gap-5 list-none">
+          {navLinks.map((link) => (
+            <li key={link.to}>
+              <Link
+                to={link.to}
+                href={`#${link.to}`}
+                smooth
+                duration={500}
+                offset={-72}
+                className="text-xs text-[var(--text-muted)] hover:text-[var(--text-bright)] transition-colors cursor-pointer"
+              >
+                {link.label}
+              </Link>
+            </li>
+          ))}
+        </ul>
 
-        {/* Bottom Row */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
-
-          <p
-            className="text-[#C8CADE] text-xs opacity-50 text-center"
-            style={{ fontFamily: 'Space Grotesk, sans-serif' }}
-          >
-            © {year} Rajesh A.G. Built with React + Vite
-          </p>
-
-          <p
-            className="text-[#C8CADE] text-xs opacity-50 text-center"
-            style={{ fontFamily: 'Space Grotesk, sans-serif' }}
-          >
-            Designed &amp; Built by{' '}
-            <span className="text-[#A78BFA] opacity-100">
-              Rajesh A.G.
-            </span>
-          </p>
-
+        <div className="flex items-center gap-2.5">
+          {socialLinks.map(({ icon: Icon, href, label }) => (
+            <a
+              key={label}
+              href={href}
+              target="_blank"
+              rel="noreferrer"
+              aria-label={label}
+              className="flex h-8 w-8 items-center justify-center rounded-[var(--radius-sm)] border border-[var(--border)] text-[var(--text-muted)] hover:text-indigo-400 hover:border-indigo-500/20 hover:bg-white/[0.01] transition-all"
+            >
+              <Icon size={14} />
+            </a>
+          ))}
         </div>
       </div>
-    </footer>
-  )
-}
 
-export default Footer 
+      <div className="pt-5 border-t border-[var(--border)] text-center">
+        <p className="text-[10px] text-[var(--text-muted)] tracking-wide">
+          © {new Date().getFullYear()} Rajesh A.G. All rights reserved. Built with React &amp; Tailwind.
+        </p>
+      </div>
+    </div>
+  </footer>
+)
+
+export default Footer

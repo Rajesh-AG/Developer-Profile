@@ -11,6 +11,7 @@ const ScrollProgress = () => {
     }
 
     let ticking = false
+    let scrollEndTimer
 
     const updateProgress = () => {
       if (!barRef.current) return
@@ -24,23 +25,30 @@ const ScrollProgress = () => {
 
     const handleScroll = () => {
       if (!ticking) {
+        if (barRef.current) barRef.current.style.willChange = 'transform'
         requestAnimationFrame(updateProgress)
         ticking = true
       }
+      clearTimeout(scrollEndTimer)
+      scrollEndTimer = setTimeout(() => {
+        if (barRef.current) barRef.current.style.willChange = 'auto'
+      }, 150)
     }
 
     window.addEventListener('scroll', handleScroll, { passive: true })
     // Run once initially
     updateProgress()
 
-    return () => window.removeEventListener('scroll', handleScroll)
+    return () => {
+      window.removeEventListener('scroll', handleScroll)
+      clearTimeout(scrollEndTimer)
+    }
   }, [])
 
   return (
     <div
       ref={barRef}
       className="fixed top-0 left-0 right-0 h-[3px] bg-[var(--accent)] z-[9999] transform origin-left scale-x-0"
-      style={{ willChange: 'transform' }}
     />
   )
 }

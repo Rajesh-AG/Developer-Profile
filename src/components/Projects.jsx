@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useScrollReveal } from '../hooks/useScrollReveal'
 import { FaGithub, FaExternalLinkAlt, FaLock } from 'react-icons/fa'
 import { HiOutlineUserGroup } from 'react-icons/hi'
@@ -8,13 +8,9 @@ const projectsData = [
     id: 0,
     title: 'LogicQ — Enterprise Ed-Tech Platform',
     category: 'Flutter',
-    badges: [
-      { label: 'Featured Project', color: '#684BFF' },
-      { label: 'Production App', color: '#10B981' },
-      { label: 'Team Project', color: '#A78BFA' },
-    ],
+    badges: ['Production App', 'Team Project'],
     description:
-      'Delivers a cross-platform course engine (iOS & Android) featuring a 3-tier role-based access system (Student, Mentor, Institution) integrated with Provider state management and real-time Firestore sync. Shipped automated grading engines and push alerts via FCM, supporting 7+ course domains in live production.',
+      'Cross-platform course engine (iOS & Android) with a 3-tier role-based access system, Provider state management, and real-time Firestore sync. Features automated grading and FCM push notifications across 7+ course domains.',
     tech: ['Flutter', 'Dart', 'Firebase', 'Provider', 'RESTful APIs', 'FCM'],
     github: null,
     live: null,
@@ -23,14 +19,11 @@ const projectsData = [
   },
   {
     id: 1,
-    title: 'TenantGuard — AI-Powered Tenancy Verification Platform',
+    title: 'TenantGuard — AI Tenancy Verification',
     category: 'Flutter',
-    badges: [
-      { label: 'Final Year Project', color: '#FFA000' },
-      { label: 'Team Project', color: '#6C63FF' },
-    ],
+    badges: ['Final Year Project', 'Team Project'],
     description:
-      'Automates rental inspections using mobile computer vision models (TFLite) for room classification and edge defect detection. Connects a Flutter frontend to a Dockerized Flask backend, routing cloud uploads securely to AWS S3 buckets.',
+      'Automates rental inspections using TFLite computer vision for room classification and defect detection. Flutter frontend connected to a Dockerized Flask backend with AWS S3 uploads.',
     tech: ['Flutter', 'Python', 'PyTorch', 'TFLite', 'Flask', 'Docker', 'AWS S3'],
     github: 'https://github.com/Kingfurious/tenantguard-frontend',
     live: null,
@@ -38,14 +31,11 @@ const projectsData = [
   },
   {
     id: 2,
-    title: 'SMAS — Institutional Academic Analytics Platform',
+    title: 'SMAS — Academic Analytics Platform',
     category: 'Full Stack',
-    badges: [
-      { label: 'Full Stack', color: '#0F9B8E' },
-      { label: 'Solo Project', color: '#6C63FF' },
-    ],
+    badges: ['Full Stack', 'Solo Project'],
     description:
-      'Manages academic performance indexes and institutional grading rosters via role-based Flask APIs and SQLite databases. Features responsive dashboards in React for attendance forecasts and student report compiles.',
+      'Manages academic performance indexes and grading rosters via role-based Flask APIs and SQLite. React dashboards for attendance forecasts and student report generation.',
     tech: ['React', 'Flask', 'SQLite', 'REST APIs', 'Git'],
     github: 'https://github.com/Rajesh-AG/SMAS',
     live: null,
@@ -55,12 +45,9 @@ const projectsData = [
     id: 3,
     title: 'Fintrack — Offline-First Expense Manager',
     category: 'Flutter',
-    badges: [
-      { label: 'In Progress', color: '#0F9B8E' },
-      { label: 'Solo Project', color: '#6C63FF' },
-    ],
+    badges: ['In Progress', 'Solo Project'],
     description:
-      'Logs and analyzes personal financial transactions using offline-first local cache synchronization and real-time Firebase DB structures. Implements custom data visualization charts in Dart alongside state-driven budget limits.',
+      'Personal finance tracker with offline-first local cache sync and Firebase realtime database. Custom Dart charts with state-driven budget limits.',
     tech: ['Flutter', 'Dart', 'Firebase', 'Provider', 'FCM'],
     github: 'https://github.com/Rajesh-AG/expense_tracker',
     live: null,
@@ -68,14 +55,11 @@ const projectsData = [
   },
   {
     id: 4,
-    title: 'AgroSense — Drone Evapotranspiration IoT Grid',
+    title: 'AgroSense — IoT Irrigation Grid',
     category: 'Hackathon',
-    badges: [
-      { label: 'Smart India Hackathon 2024', color: '#B45309' },
-      { label: 'Team Project', color: '#6C63FF' },
-    ],
+    badges: ['Smart India Hackathon 2024', 'Team Project'],
     description:
-      'Optimizes agricultural irrigation schedules by analyzing environmental evapotranspiration indexes via sensor fusion nodes and telemetry. Combines hardware sensors and Python data models to calculate spatial water requirements.',
+      'Optimizes agricultural irrigation by analyzing evapotranspiration indexes via sensor fusion nodes and telemetry, combining hardware sensors with Python data models.',
     tech: ['Drones', 'IoT', 'Sensor Fusion', 'Python'],
     github: null,
     live: null,
@@ -83,14 +67,11 @@ const projectsData = [
   },
   {
     id: 5,
-    title: 'GeoGuard — Blockchain & AI Tourist Safety Network',
+    title: 'GeoGuard — Tourist Safety Network',
     category: 'Hackathon',
-    badges: [
-      { label: 'Smart India Hackathon 2025', color: '#B45309' },
-      { label: 'Team Project', color: '#6C63FF' },
-    ],
+    badges: ['Smart India Hackathon 2025', 'Team Project'],
     description:
-      'Secures tourist identities and broadcasts geofenced emergency alerts via decentralized blockchain ledger registries and geocoordinate mapping. Routes automated distress dispatch calls using background thread location feeds.',
+      'Secures tourist identities and broadcasts geofenced emergency alerts via blockchain ledger registries and geocoordinate mapping with automated distress dispatch.',
     tech: ['AI/ML', 'Geo-fencing', 'Blockchain', 'Python'],
     github: null,
     live: null,
@@ -100,152 +81,137 @@ const projectsData = [
 
 const ProjectCard = ({ project }) => {
   const isPrivate = !project.github
-  
-  // Decide accent border top color based on primary tech/category
-  const getAccentColor = () => {
-    if (project.category === 'Flutter') return '#684BFF' // purple
-    if (project.category === 'Full Stack') return '#3B82F6' // blue
-    return '#10B981' // hackathon / green
+
+  if (project.isFeatured) {
+    return (
+      <article
+        className="card h-full p-6 sm:p-8 border-indigo-500/20 bg-indigo-500/[0.01] hover:border-indigo-500/35 transition-all duration-300"
+      >
+        <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_0.8fr] gap-6 lg:gap-8 h-full">
+          <div className="flex flex-col justify-between h-full">
+            <div>
+              <div className="flex flex-wrap items-center gap-2 mb-4">
+                <span className="tag bg-indigo-500/10 border-indigo-500/20 text-indigo-400 font-bold">Featured Project</span>
+                {project.badges.map((label) => (
+                  <span key={label} className="tag">{label}</span>
+                ))}
+              </div>
+
+              <h3 className="font-[family-name:var(--font-display)] text-xl sm:text-2xl font-bold text-[var(--text-bright)] mb-3 leading-snug tracking-tight">
+                {project.title}
+              </h3>
+
+              <p className="text-sm text-[var(--text)] leading-relaxed mb-6">
+                {project.description}
+              </p>
+            </div>
+
+            <div className="flex items-center gap-4 pt-4 border-t border-[var(--border)] mt-auto">
+              <span className="inline-flex items-center gap-2 text-xs text-[var(--text-muted)] font-medium">
+                <FaLock size={10} aria-hidden="true" className="opacity-80" />
+                Private Repository
+              </span>
+            </div>
+          </div>
+
+          <div className="flex flex-col justify-between border-t lg:border-t-0 lg:border-l border-[var(--border)] pt-6 lg:pt-0 lg:pl-6">
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)] mb-3">
+                Key Technologies
+              </p>
+              <div className="flex flex-wrap gap-1.5">
+                {project.tech.map((t) => (
+                  <span key={t} className="pill text-xs py-1 px-2.5">{t}</span>
+                ))}
+              </div>
+            </div>
+
+            <div className="pt-6 mt-auto">
+              <div className="flex flex-col gap-2">
+                <span className="text-[10px] text-[var(--text-muted)] font-medium">
+                  Deployed internally for institution and institutional partners.
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+    )
   }
 
-  const accentColor = getAccentColor()
-
   return (
-    <div
-      className={`flex flex-col p-6 rounded-xl border bg-[#13151F] border-[#6C63FF]/12 transition-all duration-300 hover:-translate-y-1 hover:border-[#684BFF]/40 hover:shadow-xl hover:shadow-[#684BFF]/5 group ${
-        isPrivate ? 'opacity-[0.7] hover:opacity-95' : ''
-      } ${
-        project.isFeatured ? 'col-span-1 lg:col-span-3 lg:flex-row lg:gap-8 lg:items-center' : ''
-      }`}
-      style={{
-        borderTop: `4px solid ${accentColor}`,
-      }}
+    <article
+      className="card flex flex-col h-full p-5 sm:p-6 hover:border-indigo-500/10 transition-all duration-300"
     >
-      {/* Visual content grouping wrapper for featured card horizontal layout */}
-      <div className={`flex-1 flex flex-col h-full ${project.isFeatured ? 'lg:justify-between' : ''}`}>
-        
-        {/* Tags row at top */}
-        <div className="flex flex-wrap gap-2 mb-4">
-          {/* Featured Badge */}
-          {project.isFeatured && (
-            <span
-              className="px-3 py-1 text-[10px] font-bold rounded-full bg-[#684BFF]/20 text-[#A78BFA] border border-[#684BFF]/35 uppercase tracking-wide"
-              style={{ fontFamily: 'Space Grotesk, sans-serif' }}
-            >
-              ⭐ Featured
-            </span>
-          )}
-
-          {project.badges.map((badge) => (
-            <span
-              key={badge.label}
-              className="px-3 py-1 text-[10px] font-semibold rounded-full"
-              style={{
-                background: `${badge.color}15`,
-                color: badge.color,
-                border: `1px solid ${badge.color}35`,
-                fontFamily: 'Space Grotesk, sans-serif',
-                letterSpacing: '0.04em',
-              }}
-            >
-              {badge.label}
-            </span>
-          ))}
-
-          {/* Team Indicator */}
-          {project.isTeam && (
-            <span
-              className="flex items-center gap-1.5 px-3 py-1 text-[10px] font-semibold rounded-full bg-[#A78BFA]/10 text-[#A78BFA] border border-[#A78BFA]/25"
-              style={{ fontFamily: 'Space Grotesk, sans-serif' }}
-            >
-              <HiOutlineUserGroup size={11} />
-              Team
-            </span>
-          )}
-
-          {/* Private Repository Indicator */}
-          {isPrivate && (
-            <span
-              className="flex items-center gap-1.5 px-3 py-1 text-[10px] font-bold rounded-full bg-[#EF4444]/10 text-[#EF4444] border border-[#EF4444]/25"
-              style={{ fontFamily: 'Space Grotesk, sans-serif' }}
-            >
-              <FaLock size={9} />
-              Private Project
-            </span>
-          )}
-        </div>
-
-        {/* Title */}
-        <h3
-          className="text-[#EEEEF2] text-[18px] font-bold mb-3 leading-snug group-hover:text-[#A78BFA] transition-colors duration-300 text-left"
-          style={{ fontFamily: 'Space Grotesk, sans-serif' }}
-        >
-          {project.title}
-        </h3>
-
-        {/* Description */}
-        <p className="text-[#9CA3AF] text-[14px] leading-relaxed mb-5 text-left">
-          {project.description}
-        </p>
-
-        {/* Tech Stack Pills */}
-        <div className="flex flex-wrap gap-1.5 mb-6">
-          {project.tech.map((t) => (
-            <span
-              key={t}
-              className="px-3 py-1 text-[10px] font-semibold rounded-full bg-[#6C63FF]/5 text-[#A78BFA] border border-[#6C63FF]/15"
-              style={{ fontFamily: 'Space Grotesk, sans-serif' }}
-            >
-              {t}
-            </span>
-          ))}
-        </div>
-
-        {/* Action Links */}
-        <div className="flex items-center gap-4 mt-auto pt-4 border-t border-[#6C63FF]/10">
-          {project.github ? (
-            <a
-              href={project.github}
-              target="_blank"
-              rel="noreferrer"
-              className="flex items-center gap-2 text-xs font-bold text-[#C8CADE] hover:text-[#684BFF] transition-colors duration-200"
-            >
-              <FaGithub size={15} />
-              View Code
-            </a>
-          ) : (
-            <span className="flex items-center gap-1.5 text-xs font-semibold text-[#C8CADE]/30 cursor-default">
-              <FaLock size={11} />
-              Private Repo
-            </span>
-          )}
-
-          {project.live && (
-            <a
-              href={project.live}
-              target="_blank"
-              rel="noreferrer"
-              className="flex items-center gap-2 text-xs font-bold text-[#C8CADE] hover:text-[#684BFF] transition-colors duration-200"
-            >
-              <FaExternalLinkAlt size={11} />
-              Live Demo
-            </a>
-          )}
-        </div>
-
+      <div className="flex flex-wrap items-center gap-2 mb-3.5">
+        {project.badges.slice(0, 1).map((label) => (
+          <span key={label} className="tag">{label}</span>
+        ))}
+        {project.isTeam && (
+          <span className="tag flex items-center gap-1.5">
+            <HiOutlineUserGroup size={11} aria-hidden="true" />
+            Team
+          </span>
+        )}
+        {isPrivate && (
+          <span className="tag flex items-center gap-1.5 opacity-80">
+            <FaLock size={8} aria-hidden="true" />
+            Private
+          </span>
+        )}
       </div>
-    </div>
+
+      <h3 className="font-[family-name:var(--font-display)] text-base sm:text-lg font-bold text-[var(--text-bright)] mb-2 leading-snug tracking-tight">
+        {project.title}
+      </h3>
+
+      <p className="text-xs sm:text-sm text-[var(--text)] leading-relaxed mb-4 flex-1">
+        {project.description}
+      </p>
+
+      <div className="flex flex-wrap gap-1 mb-4">
+        {project.tech.map((t) => (
+          <span key={t} className="pill text-[11px] py-0.5 px-2">{t}</span>
+        ))}
+      </div>
+
+      <div className="flex items-center gap-4 pt-3 border-t border-[var(--border)] mt-auto">
+        {project.github ? (
+          <a
+            href={project.github}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-2 text-xs font-semibold text-[var(--text-muted)] hover:text-[var(--accent-soft)] transition-colors"
+          >
+            <FaGithub size={14} aria-hidden="true" />
+            View Source
+          </a>
+        ) : (
+          <span className="inline-flex items-center gap-2 text-xs text-[var(--text-muted)] opacity-50">
+            <FaLock size={10} aria-hidden="true" />
+            Private repo
+          </span>
+        )}
+        {project.live && (
+          <a
+            href={project.live}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-2 text-xs font-semibold text-[var(--text-muted)] hover:text-[var(--accent-soft)] transition-colors"
+          >
+            <FaExternalLinkAlt size={10} aria-hidden="true" />
+            Live demo
+          </a>
+        )}
+      </div>
+    </article>
   )
 }
 
 const ProjectCardWrapper = ({ project, index }) => {
-  const revealRef = useScrollReveal(index * 100)
-
+  const ref = useScrollReveal(index * 60)
   return (
-    <div
-      ref={revealRef}
-      className={project.isFeatured ? 'col-span-1 lg:col-span-3' : ''}
-    >
+    <div ref={ref} className={project.isFeatured ? 'sm:col-span-2' : ''}>
       <ProjectCard project={project} />
     </div>
   )
@@ -253,91 +219,71 @@ const ProjectCardWrapper = ({ project, index }) => {
 
 const Projects = () => {
   const [filter, setFilter] = useState('All')
-
-  // Filter logic
-  const filteredProjects = projectsData.filter((project) => {
-    if (filter === 'All') return true
-    return project.category === filter
-  })
-
-  // Sort featured project to top
-  const sortedProjects = [...filteredProjects].sort((a, b) => {
-    if (a.isFeatured) return -1
-    if (b.isFeatured) return 1
-    return 0
-  })
-
   const tabs = ['All', 'Flutter', 'Full Stack', 'Hackathon']
 
+  const filtered = useMemo(() => {
+    return projectsData.filter((p) => filter === 'All' || p.category === filter)
+  }, [filter])
+
+  const sorted = useMemo(() => {
+    return [...filtered].sort((a, b) => {
+      if (a.isFeatured) return -1
+      if (b.isFeatured) return 1
+      return 0
+    })
+  }, [filtered])
+
   return (
-    <section
-      id="projects"
-      className="py-12 md:py-16 px-6 bg-[#0C0D14]"
-    >
-      <div className="max-w-[1100px] mx-auto flex flex-col gap-8 md:gap-10">
-        
-        {/* Section Header */}
-        <div className="flex flex-col items-center text-center">
-          <p className="text-[11px] font-bold tracking-[0.25em] uppercase mb-3 text-[#684BFF]">
-            What I&apos;ve Built
+    <section id="projects" className="section bg-[var(--bg-elevated)]">
+      <div className="section-inner px-6">
+        <header className="section-header section-header--center">
+          <p className="eyebrow">Projects</p>
+          <h2 className="section-title">Selected work</h2>
+          <p className="section-subtitle mx-auto">
+            Production apps, academic projects, and hackathon builds from my development journey.
           </p>
+          <div className="section-accent" />
+        </header>
 
-          <h2
-            className="text-3xl sm:text-4xl font-bold text-[#EEEEF2] mb-4"
-            style={{ fontFamily: 'Space Grotesk, sans-serif' }}
-          >
-            Projects
-          </h2>
-
-          <div className="w-12 h-[3px] rounded-full bg-[#684BFF]" />
-        </div>
-
-        {/* Filter Tabs */}
-        <div className="flex flex-wrap gap-3 justify-center mb-4">
-          {tabs.map((tab) => {
-            const isActive = filter === tab
-            return (
+        {/* Tab filters with subtle border pill layout */}
+        <div className="flex justify-center mb-8">
+          <div className="inline-flex p-1 rounded-lg bg-[var(--surface)] border border-[var(--border)]" role="tablist" aria-label="Filter projects">
+            {tabs.map((tab) => (
               <button
                 key={tab}
+                role="tab"
+                aria-selected={filter === tab}
                 onClick={() => setFilter(tab)}
-                className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all duration-300 cursor-pointer ${
-                  isActive
-                    ? 'bg-[#684BFF] text-white shadow-md shadow-[#684BFF]/25 scale-105'
-                    : 'bg-transparent text-[#C8CADE] border border-[#6C63FF]/20 hover:border-[#684BFF]/50 hover:bg-[#684BFF]/5'
+                className={`px-3.5 py-1.5 rounded-md font-[family-name:var(--font-display)] text-xs font-medium transition-all cursor-pointer ${
+                  filter === tab
+                    ? 'bg-indigo-500 text-white shadow-md'
+                    : 'text-[var(--text-muted)] hover:text-[var(--text-bright)]'
                 }`}
-                style={{ fontFamily: 'Space Grotesk, sans-serif' }}
               >
                 {tab}
               </button>
-            )
-          })}
+            ))}
+          </div>
         </div>
 
-        {/* Projects Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {sortedProjects.map((project, idx) => (
-            <ProjectCardWrapper
-              key={project.id}
-              project={project}
-              index={idx}
-            />
+        {/* Grid layout with simple CSS fade-in keyframe animation */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 transition-all duration-300">
+          {sorted.map((project, idx) => (
+            <ProjectCardWrapper key={`${filter}-${project.id}`} project={project} index={idx} />
           ))}
         </div>
 
-        {/* View All on GitHub Button */}
-        <div className="flex justify-center mt-6">
+        <div className="flex justify-center mt-10">
           <a
             href="https://github.com/Rajesh-AG"
             target="_blank"
             rel="noreferrer"
-            className="inline-flex items-center gap-2.5 px-8 py-3.5 rounded-xl text-sm font-bold text-[#EEEEF2] bg-transparent border border-[#684BFF]/50 hover:bg-[#684BFF]/10 hover:border-[#684BFF] transition-all duration-300 hover:scale-[1.03]"
-            style={{ fontFamily: 'Space Grotesk, sans-serif' }}
+            className="btn btn-secondary hover:scale-[1.02] active:scale-[0.98] transition-all"
           >
-            <FaGithub size={16} />
-            View All on GitHub
+            <FaGithub size={14} aria-hidden="true" />
+            View all on GitHub
           </a>
         </div>
-
       </div>
     </section>
   )

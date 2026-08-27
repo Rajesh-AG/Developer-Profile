@@ -48,21 +48,11 @@ export const useCounter = (targetVal, duration = 1500) => {
 
       animationFrameRef.current = requestAnimationFrame(animate)
     }
-
-    const resetCounter = () => {
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current)
-      }
-      setCount(0)
-      isAnimatingRef.current = false
-    }
-
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
           startCounter()
-        } else {
-          resetCounter()
+          observer.unobserve(el)
         }
       },
       { threshold: 0.1 }

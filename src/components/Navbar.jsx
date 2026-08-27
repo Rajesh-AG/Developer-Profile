@@ -1,73 +1,57 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-scroll'
+import { HiMenu, HiX } from 'react-icons/hi'
 
 const navLinks = [
-  { label: 'About',      to: 'about' },
+  { label: 'About', to: 'about' },
   { label: 'Experience', to: 'experience' },
-  { label: 'Education',  to: 'education' },
-  { label: 'Skills',     to: 'skills' },
-  { label: 'Projects',   to: 'projects' },
-  { label: 'Contact',    to: 'contact' },
+  { label: 'Projects', to: 'projects' },
+  { label: 'Skills', to: 'skills' },
+  { label: 'Education', to: 'education' },
 ]
 
 const Navbar = () => {
-  const [scrolled, setScrolled]         = useState(false)
-  const [menuOpen, setMenuOpen]         = useState(false)
+  const [scrolled, setScrolled] = useState(false)
+  const [menuOpen, setMenuOpen] = useState(false)
   const [activeSection, setActiveSection] = useState('')
-  const [isLoaded, setIsLoaded]         = useState(() => {
-    if (typeof window !== 'undefined') {
-      return window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    }
-    return false
-  })
+  const [isLoaded, setIsLoaded] = useState(() =>
+    typeof window !== 'undefined' &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  )
 
-  // ─── Page-load animation trigger ────────────────────────────────────────────
   useEffect(() => {
-    const prefersReducedMotion = window.matchMedia(
-      '(prefers-reduced-motion: reduce)'
-    ).matches
-    if (prefersReducedMotion) return
-
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
     const raf = requestAnimationFrame(() => setIsLoaded(true))
     return () => cancelAnimationFrame(raf)
   }, [])
 
-  // ─── Scroll threshold (debounced via closure flag) ──────────────────────────
   useEffect(() => {
     let currentScrolled = false
-
     const handleScroll = () => {
-      const isScrolled = window.scrollY > 50
+      const isScrolled = window.scrollY > 20
       if (isScrolled !== currentScrolled) {
         currentScrolled = isScrolled
         setScrolled(isScrolled)
       }
     }
-
     window.addEventListener('scroll', handleScroll, { passive: true })
-    handleScroll() // sync initial state
+    handleScroll()
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
-  // ─── Escape key closes mobile menu ──────────────────────────────────────────
   useEffect(() => {
-    if (!menuOpen) return // only attach when menu is open
-
-    const handleEscape = (e) => {
-      if (e.key === 'Escape') setMenuOpen(false)
-    }
-
+    if (!menuOpen) return
+    document.body.style.overflow = 'hidden'
+    const handleEscape = (e) => { if (e.key === 'Escape') setMenuOpen(false) }
     window.addEventListener('keydown', handleEscape)
-    return () => window.removeEventListener('keydown', handleEscape)
+    return () => {
+      document.body.style.overflow = ''
+      window.removeEventListener('keydown', handleEscape)
+    }
   }, [menuOpen])
 
-  // ─── IntersectionObserver — active section highlight ────────────────────────
   useEffect(() => {
-    const sectionIds = [
-      'hero', 'about', 'experience', 'education',
-      'skills', 'projects', 'contact',
-    ]
-
+    const sectionIds = ['hero', 'about', 'experience', 'projects', 'skills', 'education', 'contact']
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -76,11 +60,7 @@ const Navbar = () => {
           }
         })
       },
-      {
-        root: null,
-        rootMargin: '-30% 0px -50% 0px',
-        threshold: 0,
-      }
+      { rootMargin: '-30% 0px -40% 0px', threshold: 0 }
     )
 
     sectionIds.forEach((id) => {
@@ -88,209 +68,165 @@ const Navbar = () => {
       if (el) observer.observe(el)
     })
 
-    // FIX ✖ — disconnect() cleans up all observations in one call
     return () => observer.disconnect()
   }, [])
 
-  // ─── Derived active state helper ────────────────────────────────────────────
   const isLinkActive = (linkTo) =>
-    activeSection === linkTo ||
-    (linkTo === 'about'      && activeSection === 'hero')
+    activeSection === linkTo || (linkTo === 'about' && activeSection === 'hero')
 
-  // ─── Shared class builders ──────────────────────────────────────────────────
-  const desktopLinkClass = (linkTo) =>
-    [
-      'nav-link text-sm font-medium cursor-pointer relative py-1.5',
-      // FIX ⚠ — was transition-all; now only the properties that actually change
-      'transition-[color,transform] duration-200',
-      isLinkActive(linkTo)
-        ? 'active text-[#A78BFA] font-bold scale-105'
-        : 'text-[#C8CADE]/75 hover:text-[#A78BFA]',
-    ].join(' ')
-
-  const mobileLinkClass = (linkTo) =>
-    [
-      'text-base font-medium cursor-pointer block py-2 border-l-2 pl-4',
-      // transition-colors is already scoped — kept as-is ✅
-      'transition-colors duration-200',
-      isLinkActive(linkTo)
-        ? 'text-[#A78BFA] font-bold border-[#684BFF]'
-        : 'text-[#C8CADE]/85 hover:text-[#A78BFA] border-transparent',
-    ].join(' ')
-
-  // ────────────────────────────────────────────────────────────────────────────
+  const linkClass = (linkTo) =>
+    `nav-link cursor-pointer ${isLinkActive(linkTo) ? 'active' : ''}`
 
   return (
-    <nav
+    <header
       className={[
-        'fixed top-0 left-0 w-full z-50 navbar-load',
-        // FIX ⚠ — was transition-all; only bg, padding, shadow, border change
-        'transition-[background-color,padding,box-shadow,border-color] duration-300',
+        'fixed top-0 left-0 w-full z-50 navbar-load transition-all duration-300',
         isLoaded ? 'page-loaded' : '',
         scrolled
-          ? 'bg-[#0C0D14]/90 backdrop-blur-md border-b border-[#6C63FF]/15 py-3 shadow-lg'
-          : 'bg-transparent py-5',
+          ? 'md:navbar-floating bg-[var(--bg)]/80 backdrop-blur-md border-b border-[var(--border)] md:shadow-lg'
+          : 'bg-transparent border-b border-transparent md:translate-y-0',
       ].join(' ')}
     >
-      <div className="max-w-[1100px] mx-auto px-6 flex items-center justify-between relative">
-
-        {/* ── Logo ─────────────────────────────────────────────────────────── */}
+      <nav
+        className="section-inner flex h-[var(--nav-height)] md:h-14 items-center justify-between px-6 transition-all duration-300"
+        aria-label="Main navigation"
+      >
         <Link
           to="hero"
           href="#hero"
-          smooth={true}
+          smooth
           duration={500}
-          offset={-80}
-          className="text-[1.4rem] font-bold text-[#EEEEF2] cursor-pointer"
-          style={{ fontFamily: 'Space Grotesk, sans-serif' }}
+          offset={-72}
+          className="font-[family-name:var(--font-display)] text-lg font-bold text-[var(--text-bright)] cursor-pointer tracking-tight"
         >
-          Rajesh A.G.<span className="text-[#6C63FF]">.</span>
+          Rajesh<span className="text-[var(--accent)]">.</span>
         </Link>
 
-        {/* ── Desktop nav links ─────────────────────────────────────────────── */}
-        <ul className="hidden md:flex items-center gap-8 list-none">
+        <ul className="hidden md:flex items-center gap-6 list-none">
           {navLinks.map((link) => (
-            // key uses link.to (stable string), not array index ✅
             <li key={link.to}>
               <Link
                 to={link.to}
                 href={`#${link.to}`}
-                smooth={true}
+                smooth
                 duration={500}
-                offset={-80}
-                className={desktopLinkClass(link.to)}
+                offset={-72}
+                className={linkClass(link.to)}
               >
                 {link.label}
               </Link>
             </li>
           ))}
-
-          <li>
-            <a
-              href="/resume.pdf"
-              target="_blank"
-              rel="noreferrer"
-              // FIX ⚠ — was transition-all; only bg and color change on hover
-              className="inline-block px-5 py-2 text-sm font-semibold text-[#6C63FF] border border-[#6C63FF] rounded-lg hover:bg-[#6C63FF] hover:text-white transition-[background-color,color] duration-200"
-            >
-              Resume
-            </a>
-          </li>
         </ul>
 
-        {/* ── Hamburger button ─────────────────────────────────────────────── */}
+        <div className="hidden md:flex items-center gap-2.5">
+          <a
+            href="/resume.pdf"
+            target="_blank"
+            rel="noreferrer"
+            className="btn btn-ghost text-xs py-1.5 px-3"
+          >
+            Resume
+          </a>
+          <Link
+            to="contact"
+            href="#contact"
+            smooth
+            duration={500}
+            offset={-72}
+            className="btn btn-primary text-xs py-1.5 px-3.5 cursor-pointer"
+          >
+            Hire Me
+          </Link>
+        </div>
+
         <button
           onClick={() => setMenuOpen((prev) => !prev)}
           aria-label={menuOpen ? 'Close menu' : 'Open menu'}
           aria-expanded={menuOpen}
           aria-controls="mobile-menu"
-          className="md:hidden flex flex-col gap-[5px] bg-transparent border-none cursor-pointer p-1.5 z-55"
+          className="md:hidden flex items-center justify-center w-9 h-9 rounded-[var(--radius-sm)] text-[var(--text-bright)] bg-transparent border border-[var(--border)] cursor-pointer"
         >
-          <span
-            className={[
-              'block w-6 h-0.5 bg-[#EEEEF2] rounded',
-              // FIX ⚠ — was transition-all; only transform changes here
-              'transition-transform duration-300',
-              menuOpen ? 'rotate-45 translate-y-[7px]' : '',
-            ].join(' ')}
-          />
-          <span
-            className={[
-              'block w-6 h-0.5 bg-[#EEEEF2] rounded',
-              // FIX ⚠ — was transition-all; only opacity changes here
-              'transition-opacity duration-300',
-              menuOpen ? 'opacity-0' : '',
-            ].join(' ')}
-          />
-          <span
-            className={[
-              'block w-6 h-0.5 bg-[#EEEEF2] rounded',
-              // FIX ⚠ — was transition-all; only transform changes here
-              'transition-transform duration-300',
-              menuOpen ? '-rotate-45 -translate-y-[7px]' : '',
-            ].join(' ')}
-          />
+          {menuOpen ? <HiX size={18} /> : <HiMenu size={18} />}
         </button>
-      </div>
+      </nav>
 
-      {/* ── Mobile backdrop overlay ─────────────────────────────────────────── */}
       <div
-        className={[
-          'md:hidden fixed inset-0 bg-[#0C0D14]/75 backdrop-blur-sm z-40',
-          // transition-opacity is already scoped ✅
-          'transition-opacity duration-300',
-          menuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none',
-        ].join(' ')}
+        className={`md:hidden fixed inset-0 bg-black/75 z-40 transition-opacity duration-300 ${
+          menuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+        }`}
         onClick={() => setMenuOpen(false)}
         aria-hidden="true"
       />
 
-      {/* ── Mobile slide-in drawer ──────────────────────────────────────────── */}
       <div
         id="mobile-menu"
         role="dialog"
         aria-label="Mobile navigation"
         aria-modal="true"
-        className={[
-          'md:hidden fixed top-0 right-0 h-screen w-[280px]',
-          'bg-[#13151F] border-l border-[#6C63FF]/15 shadow-2xl z-50',
-          'p-6 flex flex-col gap-8',
-          // transition-transform is already scoped ✅
-          'transition-transform duration-300 ease-in-out',
-          menuOpen ? 'translate-x-0' : 'translate-x-full',
-        ].join(' ')}
+        className={`md:hidden fixed top-0 right-0 h-full w-[260px] bg-[var(--surface)] border-l border-[var(--border)] z-50 p-5 flex flex-col transition-transform duration-300 ease-out ${
+          menuOpen ? 'translate-x-0' : 'translate-x-full'
+        }`}
       >
-        <div className="flex justify-between items-center mt-4">
-          <span
-            className="text-lg font-bold text-[#EEEEF2]"
-            style={{ fontFamily: 'Space Grotesk, sans-serif' }}
-          >
+        <div className="flex justify-between items-center mb-6">
+          <span className="font-[family-name:var(--font-display)] font-bold text-[var(--text-bright)]">
             Navigation
           </span>
-
-          {/* FIX ⚠ — was icon-only with no label; aria-label added ✅ */}
           <button
             onClick={() => setMenuOpen(false)}
-            aria-label="Close navigation menu"
-            className="text-[#C8CADE] hover:text-[#A78BFA] bg-transparent border-none cursor-pointer text-xl p-1 transition-colors duration-200"
+            aria-label="Close menu"
+            className="text-[var(--text-muted)] hover:text-[var(--text-bright)] bg-transparent border-none cursor-pointer p-1"
           >
-            <span aria-hidden="true">✕</span>
+            <HiX size={20} />
           </button>
         </div>
 
-        <ul className="flex flex-col gap-5 list-none text-left mt-4">
+        <ul className="flex flex-col gap-1 list-none flex-1">
           {navLinks.map((link) => (
-            // key uses link.to (stable string), not array index ✅
             <li key={link.to}>
               <Link
                 to={link.to}
                 href={`#${link.to}`}
-                smooth={true}
+                smooth
                 duration={500}
-                offset={-80}
+                offset={-72}
                 onClick={() => setMenuOpen(false)}
-                className={mobileLinkClass(link.to)}
+                className={`block py-2.5 px-3 rounded-[var(--radius-sm)] font-[family-name:var(--font-display)] text-sm font-medium transition-colors ${
+                  isLinkActive(link.to)
+                    ? 'text-[var(--accent-soft)] bg-[var(--accent-muted)]'
+                    : 'text-[var(--text)] hover:text-[var(--text-bright)] hover:bg-white/[0.02]'
+                } cursor-pointer`}
               >
                 {link.label}
               </Link>
             </li>
           ))}
-
-          <li className="pt-4 border-t border-white/5">
-            <a
-              href="/resume.pdf"
-              target="_blank"
-              rel="noreferrer"
-              onClick={() => setMenuOpen(false)}
-              // FIX ⚠ — was transition-all; only bg and color change on hover
-              className="w-full text-center block px-5 py-3 text-sm font-semibold text-[#6C63FF] border border-[#6C63FF] rounded-lg hover:bg-[#6C63FF] hover:text-white transition-[background-color,color] duration-200"
-            >
-              Resume
-            </a>
-          </li>
         </ul>
+
+        <div className="flex flex-col gap-2 pt-4 border-t border-[var(--border)]">
+          <a
+            href="/resume.pdf"
+            target="_blank"
+            rel="noreferrer"
+            onClick={() => setMenuOpen(false)}
+            className="btn btn-ghost w-full text-center py-2"
+          >
+            Resume
+          </a>
+          <Link
+            to="contact"
+            href="#contact"
+            smooth
+            duration={500}
+            offset={-72}
+            onClick={() => setMenuOpen(false)}
+            className="btn btn-primary w-full text-center py-2 cursor-pointer"
+          >
+            Hire Me
+          </Link>
+        </div>
       </div>
-    </nav>
+    </header>
   )
 }
 
