@@ -1,10 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { FaEnvelope, FaLinkedin, FaGithub } from 'react-icons/fa'
 
-const SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID || ''
-const TEMPLATE_ID = import.meta.env.VITE_EMAILJS_TEMPLATE_ID || ''
-const PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY || ''
-const ENDPOINT = 'https://api.emailjs.com/api/v1.0/email/send'
+const WEB3FORMS_ACCESS_KEY = import.meta.env.VITE_WEB3FORMS_ACCESS_KEY || ''
+const ENDPOINT = 'https://api.web3forms.com/submit'
 
 const INITIAL_FORM = { name: '', email: '', message: '' }
 const INITIAL_ERRORS = { name: '', email: '', message: '' }
@@ -14,7 +12,7 @@ const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
 export default function Contact() {
   const [form, setForm] = useState(INITIAL_FORM)
   const [errors, setErrors] = useState(INITIAL_ERRORS)
-  const [status, setStatus] = useState('idle')
+  const [status, setStatus] = useState('idle') // 'idle' | 'sending' | 'success' | 'error'
   const [toast, setToast] = useState({ show: false, message: '', type: 'success' })
   const toastTimerRef = useRef(null)
 
@@ -63,48 +61,62 @@ export default function Contact() {
   const handleSubmit = async (e) => {
     e.preventDefault()
     if (status === 'sending') return
+
     if (!validateForm()) {
       triggerToast('Please fix the errors in the form.', 'error')
       return
     }
-    if (!SERVICE_ID || !TEMPLATE_ID || !PUBLIC_KEY) {
+
+    if (!WEB3FORMS_ACCESS_KEY) {
+      console.error('[Web3Forms Integration Error]: VITE_WEB3FORMS_ACCESS_KEY environment variable is not defined in .env or environment config.')
       setStatus('error')
-      triggerToast('Email service configuration missing.', 'error')
+      triggerToast('Email service configuration missing. Please try again later or email directly.', 'error')
       return
     }
 
     setStatus('sending')
     try {
+      const formData = new FormData()
+      formData.append('access_key', WEB3FORMS_ACCESS_KEY)
+      formData.append('name', form.name.trim())
+      formData.append('email', form.email.trim())
+      formData.append('message', form.message.trim())
+      formData.append('subject', 'New Contact Message — Rajesh Portfolio')
+      formData.append('from_name', 'Rajesh Portfolio Contact')
+
+      // Web3Forms Honeypot Botcheck check
+      if (e.target.botcheck && e.target.botcheck.checked) {
+        formData.append('botcheck', e.target.botcheck.value)
+      }
+
       const response = await fetch(ENDPOINT, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          service_id: SERVICE_ID,
-          template_id: TEMPLATE_ID,
-          user_id: PUBLIC_KEY,
-          template_params: {
-            from_name: form.name.trim(),
-            reply_to: form.email.trim(),
-            message: form.message.trim(),
-          },
-        }),
+        body: formData,
       })
-      if (!response.ok) throw new Error('Email failed')
-      setStatus('success')
-      setForm(INITIAL_FORM)
-      setErrors(INITIAL_ERRORS)
-      triggerToast('Message sent successfully. I will get back to you soon.', 'success')
-    } catch {
+
+      const data = await response.json()
+
+      if (data.success) {
+        setStatus('success')
+        setForm(INITIAL_FORM)
+        setErrors(INITIAL_ERRORS)
+        triggerToast('Message sent successfully. I will get back to you soon.', 'success')
+        setTimeout(() => setStatus('idle'), 3000)
+      } else {
+        console.error('[Web3Forms Error Response]:', data)
+        setStatus('error')
+        triggerToast('Failed to send message. Please try again or email directly.', 'error')
+      }
+    } catch (err) {
+      console.error('[Web3Forms Submission Exception]:', err)
       setStatus('error')
       triggerToast('Failed to send message. Please try again or email directly.', 'error')
-    } finally {
-      setStatus((prev) => (prev === 'sending' ? 'idle' : prev))
     }
   }
 
   return (
     <section id="contact" className="section-shell" style={{ borderTop: '1px solid var(--line)', paddingBottom: '10rem' }}>
-      <div className="section-kicker">09 / CONTACT</div>
+      <div className="section-kicker">11 / CONTACT</div>
       
       {toast.show && (
         <div
@@ -141,13 +153,14 @@ export default function Contact() {
           </p>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginTop: '36px' }}>
-            <a href="mailto:rajesh.ag.dev@gmail.com" style={{ display: 'flex', alignItems: 'center', gap: '12px', fontSize: '0.9rem', color: 'var(--text)' }}>
+            {/* TODO: Custom domain email displayed; fallback styled: rajesh.ag.dev [ at ] gmail.com */}
+            <a href="mailto:a.rajeshyadhav2004@gmail.com" style={{ display: 'flex', alignItems: 'center', gap: '12px', fontSize: '0.9rem', color: 'var(--text)' }}>
               <FaEnvelope color="var(--accent)" />
-              <span>rajesh.ag.dev@gmail.com</span>
+              <span>a.rajeshyadhav2004@gmail.com</span>
             </a>
-            <a href="https://linkedin.com/in/rajesh-ag" target="_blank" rel="noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '12px', fontSize: '0.9rem', color: 'var(--text)' }}>
+            <a href="https://www.linkedin.com/in/rajeshaxiom" target="_blank" rel="noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '12px', fontSize: '0.9rem', color: 'var(--text)' }}>
               <FaLinkedin color="var(--accent)" />
-              <span>linkedin.com/in/rajesh-ag</span>
+              <span>linkedin.com/in/rajeshaxiom</span>
             </a>
             <a href="https://github.com/Rajesh-AG" target="_blank" rel="noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '12px', fontSize: '0.9rem', color: 'var(--text)' }}>
               <FaGithub color="var(--accent)" />
@@ -158,8 +171,18 @@ export default function Contact() {
 
         {/* Minimal Editorial Contact Form */}
         <form onSubmit={handleSubmit} noValidate style={{ display: 'flex', flexDirection: 'column', gap: '28px', marginTop: '24px' }}>
+          {/* Web3Forms Honeypot Anti-Spam Field */}
+          <input
+            type="checkbox"
+            name="botcheck"
+            className="hidden"
+            style={{ display: 'none' }}
+            tabIndex="-1"
+            autoComplete="off"
+          />
+
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', position: 'relative' }}>
-            <span style={{ fontSize: '0.62rem', fontWeight: 700, letterSpacing: '0.12em', color: 'var(--dim)' }}>NAME</span>
+            <label htmlFor="contact-name" style={{ fontSize: '0.62rem', fontWeight: 700, letterSpacing: '0.12em', color: '#9CA3AF' }}>NAME</label>
             <input
               id="contact-name"
               type="text"
@@ -173,7 +196,7 @@ export default function Contact() {
                 background: 'transparent',
                 border: 'none',
                 borderBottom: errors.name ? '1px solid #EF4444' : '1px solid var(--line-strong)',
-                color: 'var(--text)',
+                color: '#E5E7EB',
                 padding: '8px 0',
                 fontSize: '0.95rem',
                 outline: 'none',
@@ -184,7 +207,7 @@ export default function Contact() {
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', position: 'relative' }}>
-            <span style={{ fontSize: '0.62rem', fontWeight: 700, letterSpacing: '0.12em', color: 'var(--dim)' }}>EMAIL ADDRESS</span>
+            <label htmlFor="contact-email" style={{ fontSize: '0.62rem', fontWeight: 700, letterSpacing: '0.12em', color: '#9CA3AF' }}>EMAIL ADDRESS</label>
             <input
               id="contact-email"
               type="email"
@@ -193,12 +216,12 @@ export default function Contact() {
               onChange={handleChange}
               onBlur={handleBlur}
               disabled={status === 'sending'}
-              placeholder="you@example.com"
+              placeholder="ABC@example.com"
               style={{
                 background: 'transparent',
                 border: 'none',
                 borderBottom: errors.email ? '1px solid #EF4444' : '1px solid var(--line-strong)',
-                color: 'var(--text)',
+                color: '#E5E7EB',
                 padding: '8px 0',
                 fontSize: '0.95rem',
                 outline: 'none',
@@ -209,7 +232,7 @@ export default function Contact() {
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', position: 'relative' }}>
-            <span style={{ fontSize: '0.62rem', fontWeight: 700, letterSpacing: '0.12em', color: 'var(--dim)' }}>MESSAGE</span>
+            <label htmlFor="contact-message" style={{ fontSize: '0.62rem', fontWeight: 700, letterSpacing: '0.12em', color: '#9CA3AF' }}>MESSAGE</label>
             <textarea
               id="contact-message"
               name="message"
@@ -223,11 +246,12 @@ export default function Contact() {
                 background: 'transparent',
                 border: 'none',
                 borderBottom: errors.message ? '1px solid #EF4444' : '1px solid var(--line-strong)',
-                color: 'var(--text)',
+                color: '#E5E7EB',
                 padding: '8px 0',
                 fontSize: '0.95rem',
                 outline: 'none',
-                resize: 'none',
+                minHeight: '120px',
+                resize: 'vertical',
                 transition: 'border-color 0.25s'
               }}
             />
@@ -237,10 +261,15 @@ export default function Contact() {
           <button
             type="submit"
             disabled={status === 'sending'}
-            className="button button-primary"
-            style={{ width: 'fit-content', marginTop: '12px' }}
+            className="cta-button cta-button-primary"
+            style={{ 
+              width: 'fit-content', 
+              marginTop: '12px',
+              backgroundColor: status === 'success' ? '#00D9A6' : status === 'error' ? '#EF4444' : undefined,
+              color: status === 'success' || status === 'error' ? '#ffffff' : undefined
+            }}
           >
-            {status === 'sending' ? 'SENDING...' : 'SEND MESSAGE ↗'}
+            {status === 'sending' ? 'SENDING...' : status === 'success' ? 'MESSAGE SENT ✓' : status === 'error' ? 'FAILED — TRY AGAIN' : 'SEND MESSAGE ↗'}
           </button>
         </form>
       </div>

@@ -1,11 +1,13 @@
 import { useEffect, useRef, useState } from 'react'
 import ScrollProgress from './components/ScrollProgress'
-import Navbar from './components/Navbar'
-import Hero from './components/Hero'
+// import Header from './components/Header'
+import Hero from './components/Hero/Hero'
 import About from './components/About'
 import Skills from './components/Skills'
 import Experience from './components/Experience'
 import EducationTimeline from './components/EducationTimeline'
+import Certifications from './components/Certifications'
+import Achievements from './components/Achievements'
 import Projects from './components/Projects'
 import EngineeringThinking from './components/EngineeringThinking'
 import Contact from './components/Contact'
@@ -16,6 +18,7 @@ const CustomCursor = () => {
   const dotRef = useRef(null)
   const ringRef = useRef(null)
   const [enabled, setEnabled] = useState(false)
+  const [visible, setVisible] = useState(false)
 
   useEffect(() => {
     const media = window.matchMedia('(pointer: fine) and (prefers-reduced-motion: no-preference)')
@@ -23,8 +26,12 @@ const CustomCursor = () => {
     update()
     media.addEventListener('change', update)
     if (!media.matches) return () => media.removeEventListener('change', update)
-    let x = 0; let y = 0; let rx = 0; let ry = 0; let frame
-    const move = (event) => { x = event.clientX; y = event.clientY }
+    let x = -100; let y = -100; let rx = -100; let ry = -100; let frame
+    const move = (event) => { 
+      x = event.clientX; 
+      y = event.clientY;
+      if (!visible) setVisible(true);
+    }
     const tick = () => {
       rx += (x - rx) * 0.14; ry += (y - ry) * 0.14
       if (dotRef.current) dotRef.current.style.transform = `translate3d(${x}px,${y}px,0)`
@@ -33,10 +40,15 @@ const CustomCursor = () => {
     }
     window.addEventListener('mousemove', move, { passive: true }); frame = requestAnimationFrame(tick)
     return () => { window.removeEventListener('mousemove', move); cancelAnimationFrame(frame); media.removeEventListener('change', update) }
-  }, [])
+  }, [visible])
 
   if (!enabled) return null
-  return <><span ref={ringRef} className="cursor-ring" /><span ref={dotRef} className="cursor-dot" /></>
+  return (
+    <div style={{ opacity: visible ? 1 : 0, transition: 'opacity 0.3s ease' }}>
+      <span ref={ringRef} className="cursor-ring" />
+      <span ref={dotRef} className="cursor-dot" />
+    </div>
+  )
 }
 
 const BackToTop = () => {
@@ -53,7 +65,7 @@ export default function App() {
     <a href="#main-content" className="skip-to-main-content">Skip to main content</a>
     <ScrollProgress />
     <CustomCursor />
-    <Navbar />
+    {/* Header is now rendered inside the Hero component */}
     <main id="main-content">
       <Hero />
       <About />
@@ -62,6 +74,8 @@ export default function App() {
       <Skills />
       <Experience />
       <EducationTimeline />
+      <Certifications />
+      <Achievements />
       <Contact />
     </main>
     <Footer />

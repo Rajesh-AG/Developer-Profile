@@ -69,6 +69,10 @@ h2 {
   color: var(--text-h);
 }
 
+#hero h1 {
+  color: #ffffff;
+}
+
 h1 {
   font-size: 56px;
   letter-spacing: -1.68px;

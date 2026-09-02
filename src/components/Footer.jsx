@@ -4,18 +4,18 @@ import { Link } from 'react-scroll'
 const socialLinks = [
   { icon: FaGithub, href: 'https://github.com/Rajesh-AG', label: 'GitHub' },
   { icon: FaLinkedin, href: 'https://linkedin.com/in/rajesh-ag', label: 'LinkedIn' },
-  { icon: FaEnvelope, href: 'mailto:rajesh.ag.dev@gmail.com', label: 'Email' },
+  { icon: FaEnvelope, href: 'mailto:rajesh@rajeshag.dev', label: 'Email' },
 ]
 
 export default function Footer() {
   return (
-    <footer style={{ borderTop: '1px solid var(--line)', background: 'var(--surface)', padding: '40px 24px' }}>
-      <div style={{ maxWidth: 'var(--container-w)', margin: '0 auto', display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'between', gap: '24px' }} className="nav-inner">
-        <div>
+    <footer style={{ borderTop: '1px solid #1A1A1A', background: 'var(--surface)', padding: '32px 24px 40px', textAlign: 'center', fontSize: '13px', color: '#6B7280' }}>
+      <div style={{ maxWidth: 'var(--container-w)', margin: '0 auto', display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: '24px' }} className="nav-inner">
+        <div style={{ textAlign: 'left' }}>
           <Link to="hero" href="#hero" smooth duration={500} style={{ fontFamily: 'var(--display)', fontWeight: 800, fontSize: '1.05rem', color: 'var(--text)', cursor: 'pointer' }}>
-            RAJESH<span style={{ color: 'var(--accent)' }}>.</span>
+            RAJESH<span style={{ color: '#00D9A6' }}>.</span>
           </Link>
-          <p style={{ fontSize: '0.72rem', color: 'var(--dim)', marginTop: '4px', letterSpacing: '0.04em' }}>
+          <p style={{ fontSize: '0.72rem', color: '#9CA3AF', marginTop: '4px', letterSpacing: '0.04em' }}>
             MOBILE PRODUCT ENGINEER &amp; UI/UX DEVELOPER
           </p>
         </div>
@@ -34,19 +34,19 @@ export default function Footer() {
                 justifyContent: 'center',
                 width: '32px',
                 height: '32px',
-                border: '1px solid var(--line)',
+                border: '1px solid var(--line-strong)',
                 borderRadius: '4px',
-                color: 'var(--dim)',
+                color: '#9CA3AF',
                 transition: 'all 0.2s'
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.borderColor = 'var(--accent)'
-                e.currentTarget.style.color = 'var(--text)'
-                e.currentTarget.style.background = 'rgba(91, 140, 255, 0.05)'
+                e.currentTarget.style.borderColor = '#00D9A6'
+                e.currentTarget.style.color = '#ffffff'
+                e.currentTarget.style.background = 'rgba(0, 217, 166, 0.08)'
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.borderColor = 'var(--line)'
-                e.currentTarget.style.color = 'var(--dim)'
+                e.currentTarget.style.borderColor = 'var(--line-strong)'
+                e.currentTarget.style.color = '#9CA3AF'
                 e.currentTarget.style.background = 'transparent'
               }}
             >
@@ -56,10 +56,9 @@ export default function Footer() {
         </div>
       </div>
 
-      <div style={{ maxWidth: 'var(--container-w)', margin: '24px auto 0', paddingTop: '18px', borderTop: '1px solid var(--line)', textAlign: 'center' }}>
-        <p style={{ fontSize: '0.68rem', color: 'var(--dim)', letterSpacing: '0.04em' }}>
-          © {new Date().getFullYear()} RAJESH A.G. ALL RIGHTS RESERVED.
-        </p>
+      <div style={{ maxWidth: 'var(--container-w)', margin: '24px auto 0', paddingTop: '18px', borderTop: '1px solid #1A1A1A', display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: '8px', fontSize: '13px', color: '#6B7280' }}>
+        <span>© 2025 Rajesh A.G. All rights reserved.</span>
+        <span>Designed &amp; Built by Rajesh A.G.</span>
       </div>
     </footer>
   )

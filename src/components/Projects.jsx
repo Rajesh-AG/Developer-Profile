@@ -11,8 +11,8 @@ const projects = [
     tech: 'Flutter · Python · PyTorch · TFLite · Flask · Docker · AWS S3',
     problem: 'Manual rental property damage inspections are slow, subjective, and prone to disputes between tenants and landlords.',
     solution: 'Built a Flutter application that classifies rooms and automatically detects property defects in real-time on-device.',
-    engineering: 'Integrated PyTorch models compiled to TFLite for local classification, minimizing API network latency. Heavy uploads are queued and synced asynchronously to a Dockerized Flask endpoint backed by AWS S3 buckets.',
-    outcome: 'A final year team project demonstrating TFLite model execution on low-power devices with automated offline-first queue synchronization.',
+    engineering: 'Integrated PyTorch models compiled to TFLite for local classification, minimizing API network latency. Heavy uploads are queued and synced asynchronously, ensuring zero data loss during poor network conditions.',
+    outcome: 'An on-device AI inspection system demonstrating TFLite model execution on low-power devices with automated offline-first queue synchronization.',
     github: 'https://github.com/Kingfurious/tenantguard-frontend'
   },
   {
@@ -25,7 +25,7 @@ const projects = [
     problem: 'Institutions lack a unified course engine that serves students, mentors, and administrators with secure role-based dashboard access.',
     solution: 'Co-engineered a 3-tier Flutter application that handles course domain delivery, dynamic quizzes, and grading.',
     engineering: 'Utilized Provider state architectures to isolate grading logic and state flows. Built real-time sync with Firestore and integrated FCM push notifications for instant class alerts.',
-    outcome: 'Successfully shipped logic and UI features during a 12-month internship at Innolift Ventures, validating roles across 7+ departments.',
+    outcome: 'Successfully shipped core UI and feature modules during a 12-month internship at Innolift Ventures, serving student, mentor, and administrator roles across 7+ functional areas.',
     private: true
   },
   {
@@ -108,7 +108,7 @@ export default function Projects() {
                   </div>
                 </div>
 
-                <div className="case-tech" style={{ marginTop: '12px' }}>
+                <div className="case-tech" style={{ marginTop: '12px', color: '#9CA3AF' }}>
                   <span style={{ fontSize: '0.62rem', fontWeight: 700, letterSpacing: '0.08em', color: 'var(--accent)', textTransform: 'uppercase', marginRight: '8px' }}>
                     TECH STACK:
                   </span>
@@ -117,20 +117,24 @@ export default function Projects() {
 
                 <div className="case-actions" style={{ marginTop: '20px' }}>
                   {p.github ? (
-                    <a href={p.github} target="_blank" rel="noreferrer">
+                    <a href={p.github} target="_blank" rel="noreferrer" className="hover:text-[#00D9A6] transition-colors">
                       <FaGithub /> View source ↗
                     </a>
                   ) : (
-                    <span style={{ color: 'var(--dim)' }}>
+                    <span style={{ color: '#9CA3AF' }}>
                       <FaLock /> Private project
                     </span>
                   )}
                 </div>
               </div>
 
-              <div className="case-visual">
+              {/* Styled Placeholder for Case Mockup Panel */}
+              <div className="case-visual" style={{ background: '#0F0F0F', border: '1px solid #1A1A1A', borderRadius: '8px' }}>
                 <div className="visual-index">CASE / {p.n}</div>
                 <div className="visual-word">{p.title}</div>
+                <div style={{ color: '#4B5563', fontSize: '12px', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', zIndex: 2 }}>
+                  [ Mockup Coming Soon ]
+                </div>
                 <div className="visual-line" />
               </div>
             </motion.article>

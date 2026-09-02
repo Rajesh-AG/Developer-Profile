@@ -26,7 +26,7 @@ export default function About() {
           </p>
           
           <p>
-            Rather than developing features in isolation, I evaluate products as systems — analyzing screen transitions, local caching strategies, database synchronization states, and user flows. I enjoy refining mobile interfaces that simplify transaction tracking, ed-tech engines, and sensor telemetry.
+            Rather than developing features in isolation, I evaluate products as systems — analyzing screen transitions, local caching strategies, database synchronization states, and user flows. I enjoy refining mobile interfaces that simplify transaction tracking and ed-tech product workflows.
           </p>
 
           <p>
@@ -61,7 +61,7 @@ export default function About() {
             <span>B.Tech Information Technology (Honours)</span>
           </div>
           <div className="about-row">
-            <label>MNTORING</label>
+            <label>MENTORING</label>
             <span>Flutter, React, Version Control</span>
           </div>
         </div>

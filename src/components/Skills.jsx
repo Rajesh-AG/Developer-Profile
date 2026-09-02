@@ -6,9 +6,33 @@ const groups = [
 ]
 
 export default function Skills() {
-  return <section id="skills" className="section-shell capabilities-section">
-    <div className="section-kicker">06 / CAPABILITIES</div>
-    <div className="capability-header"><h2 className="display-heading display-heading--medium">A toolkit built around outcomes.</h2><p className="body-copy">Technologies are implementation choices. The capability that matters is knowing when and why to use them.</p></div>
-    <div className="capability-map">{groups.map((group, index) => <article className="capability-group" key={group.title}><span className="capability-index">0{index+1}</span><h3>{group.title}</h3><div className="capability-items">{group.items.map(item => <span key={item}>{item}</span>)}</div></article>)}</div>
-  </section>
+  return (
+    <section id="skills" className="section-shell capabilities-section" style={{ paddingTop: '80px', paddingBottom: '80px' }}>
+      <div className="section-kicker">06 / CAPABILITIES</div>
+      <div className="capability-header" style={{ marginBottom: '48px' }}>
+        <h2 className="display-heading display-heading--medium">A toolkit built around outcomes.</h2>
+        <p className="body-copy" style={{ color: '#9CA3AF' }}>
+          Technologies are implementation choices. The capability that matters is knowing when and why to use them.
+        </p>
+      </div>
+      <div className="capability-map">
+        {groups.map((group, index) => (
+          <article className="capability-group" key={group.title}>
+            <span className="capability-index">0{index + 1}</span>
+            <h3>{group.title}</h3>
+            <div className="capability-items">
+              {group.items.map(item => (
+                <span 
+                  key={item} 
+                  style={{ color: group.title === 'MOBILE ENGINEERING' ? '#E5E7EB' : '#9CA3AF' }}
+                >
+                  {item}
+                </span>
+              ))}
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
+  )
 }
