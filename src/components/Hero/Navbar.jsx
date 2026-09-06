@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-scroll'
 
 const navLinks = [
@@ -17,6 +17,7 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [activeSection, setActiveSection] = useState('hero')
+  const toggleButtonRef = useRef(null)
 
   useEffect(() => {
     const handleScroll = () => {
@@ -48,6 +49,23 @@ export default function Navbar() {
     return () => observer.disconnect()
   }, [])
 
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.style.overflow = 'hidden'
+      const handleKeyDown = (e) => {
+        if (e.key === 'Escape') {
+          setMobileMenuOpen(false)
+          toggleButtonRef.current?.focus()
+        }
+      }
+      window.addEventListener('keydown', handleKeyDown)
+      return () => {
+        document.body.style.overflow = 'unset'
+        window.removeEventListener('keydown', handleKeyDown)
+      }
+    }
+  }, [mobileMenuOpen])
+
   return (
     <header 
       className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
@@ -71,8 +89,8 @@ export default function Navbar() {
           RJ<span className="text-[#00D9A6] transition-colors duration-300 group-hover:text-[#38bdf8]">.</span>
         </Link>
 
-        {/* Center Nav Links (Fixed 40px Gap & Active State Indicator) */}
-        <nav className="hidden lg:flex items-center gap-[40px]" aria-label="Main Navigation">
+        {/* Center Nav Links (Minimum 28px Gap & Active State Indicator) */}
+        <nav className="hidden lg:flex items-center gap-[28px]" aria-label="Main Navigation">
           {navLinks.map((link) => (
             <Link
               key={link.to}
@@ -91,25 +109,39 @@ export default function Navbar() {
           ))}
         </nav>
 
-        {/* Visually Distinct Resume CTA Button */}
-        <div className="hidden lg:block">
+        {/* Visually Distinct Resume CTA Buttons */}
+        <div className="hidden lg:flex items-center gap-3">
           <a 
-            href="/resume.pdf" 
+            href="/A_Rajesh_Resume.pdf" 
             target="_blank" 
             rel="noopener noreferrer"
+            aria-label="View Resume in a new tab"
             style={{ border: '1px solid rgba(0, 217, 166, 0.5)', padding: '6px 16px', borderRadius: '4px', color: '#00D9A6' }}
             className="relative inline-flex items-center gap-1.5 text-xs font-semibold tracking-wider bg-white/[0.03] hover:bg-[#00D9A6]/10 hover:border-[#00D9A6] hover:shadow-[0_0_15px_rgba(0,217,166,0.3)] transition-all duration-300 group"
           >
-            <span>RESUME</span>
+            <span>VIEW RESUME</span>
             <span className="text-[10px] transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5">↗</span>
+          </a>
+          <a
+            href="/A_Rajesh_Resume.pdf"
+            download="A_Rajesh_Resume.pdf"
+            aria-label="Download Resume PDF"
+            style={{ border: '1px solid rgba(255, 255, 255, 0.2)', padding: '6px 16px', borderRadius: '4px', color: '#E5E7EB' }}
+            className="relative inline-flex items-center gap-1.5 text-xs font-semibold tracking-wider bg-white/[0.03] hover:bg-white/[0.08] hover:border-white/50 transition-all duration-300"
+          >
+            <span>DOWNLOAD</span>
+            <span className="text-[10px]">↓</span>
           </a>
         </div>
 
         {/* Mobile Hamburger Toggle */}
         <button 
+          ref={toggleButtonRef}
           className="block lg:hidden text-[#9CA3AF] hover:text-white p-2 focus:outline-none"
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          aria-label="Toggle menu"
+          aria-label={mobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
+          aria-expanded={mobileMenuOpen}
+          aria-controls="mobile-nav-drawer"
         >
           <svg className="w-6 h-6 fill-current" viewBox="0 0 24 24">
             {mobileMenuOpen ? (
@@ -123,7 +155,12 @@ export default function Navbar() {
 
       {/* Mobile Menu Drawer */}
       {mobileMenuOpen && (
-        <div className="lg:hidden absolute top-full left-0 w-full bg-[#05070a]/95 backdrop-blur-2xl border-b border-white/10 px-6 py-6 flex flex-col gap-4 shadow-2xl">
+        <div 
+          id="mobile-nav-drawer"
+          aria-label="Mobile Navigation"
+          role="region"
+          className="lg:hidden absolute top-full left-0 w-full bg-[#05070a]/95 backdrop-blur-2xl border-b border-white/10 px-6 py-6 flex flex-col gap-4 shadow-2xl"
+        >
           {navLinks.map((link) => (
             <Link
               key={link.to}
@@ -140,15 +177,27 @@ export default function Navbar() {
             </Link>
           ))}
           <a 
-            href="/resume.pdf" 
+            href="/A_Rajesh_Resume.pdf" 
             target="_blank" 
             rel="noopener noreferrer"
             onClick={() => setMobileMenuOpen(false)}
+            aria-label="View Resume in a new tab"
             style={{ border: '1px solid rgba(0, 217, 166, 0.5)', padding: '8px 18px', borderRadius: '4px', color: '#00D9A6' }}
             className="inline-flex justify-center items-center gap-2 mt-2 text-xs font-semibold bg-[#00D9A6]/10"
           >
-            <span>RESUME</span>
+            <span>VIEW RESUME</span>
             <span>↗</span>
+          </a>
+          <a
+            href="/A_Rajesh_Resume.pdf"
+            download="A_Rajesh_Resume.pdf"
+            onClick={() => setMobileMenuOpen(false)}
+            aria-label="Download Resume PDF"
+            style={{ border: '1px solid rgba(255, 255, 255, 0.2)', padding: '8px 18px', borderRadius: '4px', color: '#E5E7EB' }}
+            className="inline-flex justify-center items-center gap-2 text-xs font-semibold bg-white/[0.03]"
+          >
+            <span>DOWNLOAD RESUME</span>
+            <span>↓</span>
           </a>
         </div>
       )}

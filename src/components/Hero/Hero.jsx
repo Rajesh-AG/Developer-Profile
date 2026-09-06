@@ -7,11 +7,12 @@ import ScrollIndicator from './ScrollIndicator'
 
 export default function Hero({ profilePhoto }) {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 })
-  const [isDesktop, setIsDesktop] = useState(false)
+  const [isDesktop, setIsDesktop] = useState(() => 
+    typeof window !== 'undefined' ? window.matchMedia('(min-width: 1024px)').matches : false
+  )
 
   useEffect(() => {
     const media = window.matchMedia('(min-width: 1024px)')
-    setIsDesktop(media.matches)
     const listener = (e) => setIsDesktop(e.matches)
     media.addEventListener('change', listener)
     return () => media.removeEventListener('change', listener)

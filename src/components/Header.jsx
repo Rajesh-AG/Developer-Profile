@@ -105,10 +105,10 @@ export default function Header() {
           ))}
           <a
             className="nav-cta"
-            href="/resume.pdf"
+            href="/A_Rajesh_Resume.pdf"
             target="_blank"
-            rel="noreferrer"
-            aria-label="View Resume"
+            rel="noopener noreferrer"
+            aria-label="View Resume in a new tab"
           >
             Resume ↗
           </a>
@@ -119,6 +119,7 @@ export default function Header() {
           className={`menu-toggle ${menuOpen ? 'is-active' : ''}`}
           aria-label={menuOpen ? 'Close Menu' : 'Open Menu'}
           aria-expanded={menuOpen}
+          aria-controls="mobile-nav-overlay"
           onClick={() => setMenuOpen((prev) => !prev)}
         >
           <span />
@@ -127,7 +128,7 @@ export default function Header() {
       </div>
 
       {/* Mobile Full-Screen Navigation Overlay */}
-      <div className={`mobile-nav ${menuOpen ? 'is-open' : ''}`}>
+      <div id="mobile-nav-overlay" aria-label="Mobile Navigation" role="region" className={`mobile-nav ${menuOpen ? 'is-open' : ''}`}>
         <div className="mobile-nav-inner">
           {navLinks.map((link) => (
             <span key={link.to} className="mobile-nav-item">
@@ -136,10 +137,11 @@ export default function Header() {
           ))}
           <a
             className="nav-cta"
-            href="/resume.pdf"
+            href="/A_Rajesh_Resume.pdf"
             target="_blank"
-            rel="noreferrer"
+            rel="noopener noreferrer"
             onClick={() => setMenuOpen(false)}
+            aria-label="View Resume in a new tab"
           >
             Resume ↗
           </a>

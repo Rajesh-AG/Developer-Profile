@@ -3,16 +3,14 @@ export default function FloatingStatCards() {
     <>
       {/* CARD 1: Projects Delivered (Top-Left, Shifted Up & Right to Clear Face) */}
       <div 
-        className="absolute -left-8 sm:-left-16 top-1 sm:top-2 z-30 flex items-center gap-3.5 px-4 py-3.5 rounded-2xl bg-[#0c1114]/85 backdrop-blur-xl border border-white/15 shadow-[0_20px_40px_rgba(0,0,0,0.6)] select-none animate-float-1 hover:border-[#10b981]/50 transition-colors duration-300"
+        style={{ whiteSpace: 'nowrap', minWidth: 'fit-content' }}
+        className="absolute -left-8 sm:-left-16 top-1 sm:top-2 z-30 flex items-center gap-3.5 px-4 py-3.5 rounded-2xl bg-[#0c1114]/85 backdrop-blur-xl border border-white/15 shadow-[0_20px_40px_rgba(0,0,0,0.6)] select-none animate-float-1 hover:border-[#10b981]/50 transition-colors duration-300 whitespace-nowrap min-w-max"
       >
         <div className="w-9 h-9 rounded-xl bg-[#10b981]/15 border border-[#10b981]/30 flex items-center justify-center text-[#10b981] text-base font-bold">
           ⚡
         </div>
         <div className="flex flex-col leading-tight">
-          <span className="text-white text-[22px] font-extrabold tracking-tight">5+</span>
-          <span className="text-[#94a3b8] text-[11px] font-medium leading-tight whitespace-pre-line">
-            Projects{"\n"}Delivered
-          </span>
+          <span className="text-white text-[14px] font-bold">Projects Delivered</span>
         </div>
       </div>
 

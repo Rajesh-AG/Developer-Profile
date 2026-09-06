@@ -117,7 +117,7 @@ export default function Projects() {
 
                 <div className="case-actions" style={{ marginTop: '20px' }}>
                   {p.github ? (
-                    <a href={p.github} target="_blank" rel="noreferrer" className="hover:text-[#00D9A6] transition-colors">
+                    <a href={p.github} target="_blank" rel="noopener noreferrer" className="hover:text-[#00D9A6] transition-colors">
                       <FaGithub /> View source ↗
                     </a>
                   ) : (

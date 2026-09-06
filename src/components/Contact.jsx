@@ -33,12 +33,18 @@ export default function Contact() {
     let error = ''
     if (!trimmed) {
       error = `${name.charAt(0).toUpperCase() + name.slice(1)} is required`
-    } else if (name === 'name' && trimmed.length < 2) {
-      error = 'Please enter at least 2 characters'
-    } else if (name === 'email' && !isValidEmail(trimmed)) {
-      error = 'Please enter a valid email address'
-    } else if (name === 'message' && trimmed.length < 10) {
-      error = 'Message should be at least 10 characters'
+    } else if (name === 'name') {
+      if (trimmed.length < 2 || trimmed.length > 100) {
+        error = 'Name must be between 2 and 100 characters'
+      }
+    } else if (name === 'email') {
+      if (trimmed.length > 254 || !isValidEmail(trimmed)) {
+        error = 'Please enter a valid email address'
+      }
+    } else if (name === 'message') {
+      if (trimmed.length < 10 || trimmed.length > 2000) {
+        error = 'Message must be between 10 and 2000 characters'
+      }
     }
     setErrors((prev) => ({ ...prev, [name]: error }))
     return !error
@@ -153,16 +159,15 @@ export default function Contact() {
           </p>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginTop: '36px' }}>
-            {/* TODO: Custom domain email displayed; fallback styled: rajesh.ag.dev [ at ] gmail.com */}
             <a href="mailto:a.rajeshyadhav2004@gmail.com" style={{ display: 'flex', alignItems: 'center', gap: '12px', fontSize: '0.9rem', color: 'var(--text)' }}>
               <FaEnvelope color="var(--accent)" />
               <span>a.rajeshyadhav2004@gmail.com</span>
             </a>
-            <a href="https://www.linkedin.com/in/rajeshaxiom" target="_blank" rel="noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '12px', fontSize: '0.9rem', color: 'var(--text)' }}>
+            <a href="https://www.linkedin.com/in/rajeshaxiom" target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '12px', fontSize: '0.9rem', color: 'var(--text)' }}>
               <FaLinkedin color="var(--accent)" />
               <span>linkedin.com/in/rajeshaxiom</span>
             </a>
-            <a href="https://github.com/Rajesh-AG" target="_blank" rel="noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '12px', fontSize: '0.9rem', color: 'var(--text)' }}>
+            <a href="https://github.com/Rajesh-AG" target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '12px', fontSize: '0.9rem', color: 'var(--text)' }}>
               <FaGithub color="var(--accent)" />
               <span>github.com/Rajesh-AG</span>
             </a>
@@ -170,7 +175,7 @@ export default function Contact() {
         </div>
 
         {/* Minimal Editorial Contact Form */}
-        <form onSubmit={handleSubmit} noValidate style={{ display: 'flex', flexDirection: 'column', gap: '28px', marginTop: '24px' }}>
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '28px', marginTop: '24px' }}>
           {/* Web3Forms Honeypot Anti-Spam Field */}
           <input
             type="checkbox"
@@ -187,6 +192,11 @@ export default function Contact() {
               id="contact-name"
               type="text"
               name="name"
+              required
+              maxLength={100}
+              autoComplete="name"
+              aria-invalid={errors.name ? 'true' : 'false'}
+              aria-describedby={errors.name ? 'contact-name-error' : undefined}
               value={form.name}
               onChange={handleChange}
               onBlur={handleBlur}
@@ -203,7 +213,11 @@ export default function Contact() {
                 transition: 'border-color 0.25s'
               }}
             />
-            {errors.name && <span style={{ fontSize: '0.7rem', color: '#EF4444', marginTop: '4px' }}>{errors.name}</span>}
+            {errors.name && (
+              <span id="contact-name-error" role="alert" aria-live="polite" style={{ fontSize: '0.7rem', color: '#EF4444', marginTop: '4px' }}>
+                {errors.name}
+              </span>
+            )}
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', position: 'relative' }}>
@@ -212,6 +226,11 @@ export default function Contact() {
               id="contact-email"
               type="email"
               name="email"
+              required
+              maxLength={254}
+              autoComplete="email"
+              aria-invalid={errors.email ? 'true' : 'false'}
+              aria-describedby={errors.email ? 'contact-email-error' : undefined}
               value={form.email}
               onChange={handleChange}
               onBlur={handleBlur}
@@ -228,7 +247,11 @@ export default function Contact() {
                 transition: 'border-color 0.25s'
               }}
             />
-            {errors.email && <span style={{ fontSize: '0.7rem', color: '#EF4444', marginTop: '4px' }}>{errors.email}</span>}
+            {errors.email && (
+              <span id="contact-email-error" role="alert" aria-live="polite" style={{ fontSize: '0.7rem', color: '#EF4444', marginTop: '4px' }}>
+                {errors.email}
+              </span>
+            )}
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', position: 'relative' }}>
@@ -236,6 +259,10 @@ export default function Contact() {
             <textarea
               id="contact-message"
               name="message"
+              required
+              maxLength={2000}
+              aria-invalid={errors.message ? 'true' : 'false'}
+              aria-describedby={errors.message ? 'contact-message-error' : undefined}
               value={form.message}
               onChange={handleChange}
               onBlur={handleBlur}
@@ -255,7 +282,11 @@ export default function Contact() {
                 transition: 'border-color 0.25s'
               }}
             />
-            {errors.message && <span style={{ fontSize: '0.7rem', color: '#EF4444', marginTop: '4px' }}>{errors.message}</span>}
+            {errors.message && (
+              <span id="contact-message-error" role="alert" aria-live="polite" style={{ fontSize: '0.7rem', color: '#EF4444', marginTop: '4px' }}>
+                {errors.message}
+              </span>
+            )}
           </div>
 
           <button

@@ -11,11 +11,7 @@ const technologies = [
 
 export default function TechStack() {
   return (
-    <div className="mt-9 flex flex-col gap-3">
-      <span className="text-[#20E6A8] text-[11px] font-bold tracking-[2px] uppercase">
-        MY STACK
-      </span>
-      <div className="flex flex-wrap items-center gap-2.5">
+    <div className="mt-9 flex flex-wrap items-center gap-2.5">
         {technologies.map(({ name, icon: Icon, color }) => (
           <div 
             key={name}
@@ -29,6 +25,5 @@ export default function TechStack() {
           </div>
         ))}
       </div>
-    </div>
   )
 }

@@ -3,8 +3,8 @@ import { Link } from 'react-scroll'
 
 const socialLinks = [
   { icon: FaGithub, href: 'https://github.com/Rajesh-AG', label: 'GitHub' },
-  { icon: FaLinkedin, href: 'https://linkedin.com/in/rajesh-ag', label: 'LinkedIn' },
-  { icon: FaEnvelope, href: 'mailto:rajesh@rajeshag.dev', label: 'Email' },
+  { icon: FaLinkedin, href: 'https://www.linkedin.com/in/rajeshaxiom', label: 'LinkedIn' },
+  { icon: FaEnvelope, href: 'mailto:a.rajeshyadhav2004@gmail.com', label: 'Email' },
 ]
 
 export default function Footer() {
@@ -26,7 +26,7 @@ export default function Footer() {
               key={label}
               href={href}
               target="_blank"
-              rel="noreferrer"
+              rel="noopener noreferrer"
               aria-label={label}
               style={{
                 display: 'flex',
