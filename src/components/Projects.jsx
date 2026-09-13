@@ -13,7 +13,8 @@ const projects = [
     solution: 'Built a Flutter application that classifies rooms and automatically detects property defects in real-time on-device.',
     engineering: 'Integrated PyTorch models compiled to TFLite for local classification, minimizing API network latency. Heavy uploads are queued and synced asynchronously, ensuring zero data loss during poor network conditions.',
     outcome: 'An on-device AI inspection system demonstrating TFLite model execution on low-power devices with automated offline-first queue synchronization.',
-    github: 'https://github.com/Kingfurious/tenantguard-frontend'
+    github: 'https://github.com/Kingfurious/tenantguard-frontend',
+    image: '/assets/TENANTGAURD.png'
   },
   {
     n: '02',
@@ -26,7 +27,8 @@ const projects = [
     solution: 'Co-engineered a 3-tier Flutter application that handles course domain delivery, dynamic quizzes, and grading.',
     engineering: 'Utilized Provider state architectures to isolate grading logic and state flows. Built real-time sync with Firestore and integrated FCM push notifications for instant class alerts.',
     outcome: 'Successfully shipped core UI and feature modules during a 12-month internship at Innolift Ventures, serving student, mentor, and administrator roles across 7+ functional areas.',
-    private: true
+    private: true,
+    image: '/assets/logicQ.png'
   },
   {
     n: '03',
@@ -39,7 +41,8 @@ const projects = [
     solution: 'Developed a React frontend dashboard connected to Python Flask REST APIs for roster grading and data analysis.',
     engineering: 'Designed a lightweight database schema in SQLite. Built attendance forecast engines and reports generators utilizing custom backend routing tables.',
     outcome: 'A fully functional academic analytics platform featuring secure role-based dashboard panels and PDF progress reporting.',
-    github: 'https://github.com/Rajesh-AG/SMAS'
+    github: 'https://github.com/Rajesh-AG/SMAS',
+    image: '/assets/smas.png'
   },
   {
     n: '04',
@@ -52,7 +55,8 @@ const projects = [
     solution: 'Created an offline-first transaction manager utilizing SQLite for local caching and real-time database sync upon reconnection.',
     engineering: 'Programmed custom Dart charts to render budget limits dynamically. Implemented background sync handlers and custom conflict resolution workflows.',
     outcome: 'Personal budget management application featuring local-first caching state cycles and Firebase sync (project in progress).',
-    github: 'https://github.com/Rajesh-AG/expense_tracker'
+    github: 'https://github.com/Rajesh-AG/expense_tracker',
+    image: '/assets/IARlogo.jpeg'
   }
 ]
 
@@ -128,14 +132,27 @@ export default function Projects() {
                 </div>
               </div>
 
-              {/* Styled Placeholder for Case Mockup Panel */}
+              {/* Project preview panel */}
               <div className="case-visual" style={{ background: '#0F0F0F', border: '1px solid #1A1A1A', borderRadius: '8px' }}>
-                <div className="visual-index">CASE / {p.n}</div>
-                <div className="visual-word">{p.title}</div>
-                <div style={{ color: '#4B5563', fontSize: '12px', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', zIndex: 2 }}>
-                  [ Mockup Coming Soon ]
-                </div>
-                <div className="visual-line" />
+                <img
+                  src={p.image}
+                  alt={`${p.title} project preview`}
+                  style={{
+                    position: 'absolute',
+                    inset: 0,
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'contain',
+                    objectPosition: 'center',
+                    padding: '18px',
+                    background: '#0F0F0F',
+                    zIndex: 0,
+                    opacity: 0.9,
+                  }}
+                />
+                <div className="visual-index" style={{ zIndex: 2 }}>CASE / {p.n}</div>
+                <div className="visual-word" style={{ zIndex: 2 }}>{p.title}</div>
+                <div className="visual-line" style={{ zIndex: 1 }} />
               </div>
             </motion.article>
           ))}
